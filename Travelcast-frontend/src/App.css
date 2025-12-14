@@ -1,0 +1,118 @@
+/* Reset */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: Arial, sans-serif;
+}
+ 
+/* Background part (left side) */
+.left-area {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100vh;
+    background-image: url("backgroundimg.png");
+    background-size: cover;
+    background-position: top left;
+}
+ 
+/* Logo in top-left corner */
+.logo {
+    position: absolute;
+    top: 30px;
+    left: 30px;
+    width: 130px;
+    opacity: 0.9;
+}
+ 
+/* Glass Box Form */
+.form-container {
+    position: absolute;
+    right: 80px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 500px;
+    padding: 40px;
+    border-radius: 60px;
+    background: rgba(255, 255, 255, 0.25);
+    backdrop-filter: blur(12px);
+    box-shadow: 0 8px 32px rgba(0,0,0,0.25);
+    text-align: center;
+}
+ 
+.form-container h2 {
+    margin-bottom: 20px;
+    font-size: 28px;
+    font-weight: 700;
+}
+ 
+.subtitle {
+    text-align: center;
+    width: 100%;
+    margin-top: 10px;  
+    margin-bottom: 25px;
+    font-size: 13px;
+    color: #302f2f;
+}
+ 
+/* Input boxes */
+.input-group {
+    margin-bottom: 18px;
+}
+ 
+.input-group input {
+    width: 80%;
+    padding: 14px;
+    border-radius: 30px;
+    border: none;
+    outline: none;
+    font-size: 16px;
+    background: rgba(255, 255, 255, 0.308);
+}
+ 
+/* --------------------------------------- */
+/* Password Visibility Icon */
+.password-wrapper {
+    position: relative;
+}
+ 
+.password-icon {
+    position: absolute;
+    right: 45px;       /* Adjust position as needed */
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 20px;
+    cursor: pointer;
+    color: #333;
+}
+ 
+/* Button */
+.signup-btn {
+    width: 80%;
+    padding: 15px;
+    margin-top: 10px;
+    border: none;
+    border-radius: 30px;
+    background: #3043a1;
+    color: white;
+    font-size: 22px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: 0.2s;
+}
+ 
+.signup-btn:hover {
+    background: #223788;
+}
+ 
+/* Login text */
+.login-text {
+    margin-top: 15px;
+    font-size: 14px;
+}
+ 
+.login-text a {
+    color: black;
+}
