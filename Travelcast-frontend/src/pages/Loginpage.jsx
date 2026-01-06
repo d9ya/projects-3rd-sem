@@ -1,28 +1,16 @@
 import React, { useState } from "react";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
-import { Link } from "react-router-dom";
 
-export default function Registerpage() {
+export default function LoginPage() {
   const [username, setUsername] = useState("");
-  conxst [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-  const [error, setError] = useState("");
 
-  const handleRegistration = (e) => {
+  const handleLogin = (e) => {
     e.preventDefault();
-
-    // SIMPLE VALIDATION
-    if (username.trim().length < 2) {
-      return setError("Username must be at least 2 characters.");
-    }
-
-    if (password.length < 6) {
-      return setError("Password must be at least 6 characters.");
-    }
-
-    setError(""); // clear error
-    console.log("Registered:", { username, email, password });
+    console.log("Username:", username);
+    console.log("Password:", password);
+    // Add login logic or navigation here
   };
 
   const styles = {
@@ -30,18 +18,13 @@ export default function Registerpage() {
       height: "100vh",
       width: "100%",
       display: "flex",
-      justifyContent: "flex-end",
+      justifyContent: "center",
       alignItems: "center",
-      backgroundImage: "url('backgroundimg.png')",
-      backgroundSize: "cover",
-      backgroundPosition: "center",
+      background: "url('backgroundimg.png') no-repeat center/cover",
       fontFamily: "Arial, sans-serif",
-      position: "relative",
-      paddingRight: "50px",
     },
-     card: {
-      width: "450px",
-      height:"500px",
+    card: {
+      width: "500px",
       padding: "40px",
       borderRadius: "60px",
       background: "rgba(255, 255, 255, 0.25)",
@@ -51,78 +34,82 @@ export default function Registerpage() {
     },
     logo: {
       position: "absolute",
-      top: "20px",
-      left: "20px",
-      width: "140px",
+      top: "30px",
+      left: "30px",
+      width: "130px",
       opacity: 0.9,
     },
     title: {
-      fontSize: "26px",
+      fontSize: "28px",
       fontWeight: "700",
-      marginBottom: "10px",
+      marginBottom: "20px",
+      color: "#333",
     },
     subtitle: {
-      fontSize: "12px",
+      fontSize: "13px",
+      color: "#302f2f",
       marginBottom: "25px",
     },
     inputGroup: {
-      marginBottom: "20px",
+      marginBottom: "18px",
       position: "relative",
     },
     input: {
-      width: "100%",
-      padding: "14px 50px 14px 16px",
-      borderRadius: "40px",
+      width: "80%",
+      padding: "14px",
+      borderRadius: "30px",
       border: "none",
       outline: "none",
       fontSize: "16px",
-      background: "rgba(255, 255, 255, 0.55)",
+      background: "rgba(255, 255, 255, 0.308)",
     },
     passwordIcon: {
       position: "absolute",
-      right: "20px",
+      right: "45px",
       top: "50%",
       transform: "translateY(-50%)",
+      fontSize: "20px",
       cursor: "pointer",
+      color: "#333",
+    },
+    optionsRow: {
+      display: "flex",
+      justifyContent: "space-between",
+      width: "80%",
+      margin: "5px auto 15px auto",
+      fontSize: "14px",
     },
     button: {
-      width: "100%",
-      padding: "16px",
-      borderRadius: "40px",
-      border: "none",
-      backgroundColor: "#4254abff",
-      color: "white",
-      fontSize: "18px",
-      fontWeight: "700",
+      width: "80%",
+      padding: "15px",
       marginTop: "10px",
+      border: "none",
+      borderRadius: "30px",
+      backgroundColor: "#3043a1",
+      color: "white",
+      fontSize: "22px",
+      fontWeight: "700",
       cursor: "pointer",
-    },
-    error: {
-      color: "red",
-      marginBottom: "px",
-      fontSize: "12px",
-    },
-    loginText: {
-      marginTop: "20px",
     },
     link: {
       color: "#3043a1",
+      textDecoration: "none",
       fontWeight: "bold",
+    },
+    loginText: {
+      marginTop: "15px",
+      fontSize: "14px",
     },
   };
 
   return (
     <div style={styles.container}>
       <img src="logo.png" alt="Logo" style={styles.logo} />
-
       <div style={styles.card}>
-        <h2 style={styles.title}>Create Account</h2>
-        <p style={styles.subtitle}>Welcome to Travelcast</p>
+        <h2 style={styles.title}>Login</h2>
+        <div style={styles.subtitle}>Welcome to Travelcast</div>
 
-        {error && <div style={styles.error}>{error}</div>}
-
-        <form onSubmit={handleRegistration}>
-
+        <form onSubmit={handleLogin}>
           <div style={styles.inputGroup}>
             <input
               style={styles.input}
@@ -130,6 +117,7 @@ export default function Registerpage() {
               placeholder="Username"
               value={username}
               onChange={(e) => setUsername(e.target.value)}
+              required
             />
           </div>
 
@@ -140,6 +128,7 @@ export default function Registerpage() {
               placeholder="Password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
+              required
             />
             <span
               style={styles.passwordIcon}
@@ -149,16 +138,18 @@ export default function Registerpage() {
             </span>
           </div>
 
-          <button type="submit" style={styles.button}>
-            Sign Up
-          </button>
+          <div style={styles.optionsRow}>
+            <label>
+              <input type="checkbox" /> Remember me
+            </label>
+            <a href="#" style={styles.link}>Forgot Password?</a>
+          </div>
+
+          <button type="submit" style={styles.button}>Login</button>
         </form>
 
         <p style={styles.loginText}>
-          Already have an account?{" "}
-          <Link to="/login" style={styles.link}>
-            <u>Login</u>
-          </Link>
+          Don't have an account? <a href="#" style={styles.link}><u>Sign up</u></a>
         </p>
       </div>
     </div>
