@@ -4,6 +4,7 @@ import LoginPage from "./pages/Loginpage";
 import Securitypage from "./pages/Securitypage";
 import ForgotPasswordPage from "./forgotPasswordPage";
 import UserDashboard from "./pages/Userdashboard";
+import Settings from "./pages/settings";
 
 
 
@@ -17,6 +18,7 @@ function App() {
         <Route path="/security" element={<Securitypage />} />
         <Route path="/forgot-password" element={<ForgotPasswordPage />} />
         <Route path="/userdashboard" element={<UserDashboard/>} />
+        <Route path="/settings" element={<Settings/>} />
       </Routes>
     </Router>
   );
