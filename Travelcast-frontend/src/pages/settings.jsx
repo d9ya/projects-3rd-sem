@@ -13,13 +13,6 @@ const css = `
   font-size: 28px;
   margin-bottom: 6px;
 }
-
-// .settings-header p {
-//   color: #666;
-//   margin-bottom: 30px;
-// }
-
-
 .tabs {
   display: flex;
   gap: 20px;
