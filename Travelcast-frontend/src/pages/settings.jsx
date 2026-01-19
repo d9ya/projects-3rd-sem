@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 
 const css = `
@@ -119,6 +120,14 @@ const Settings = () => {
     email: "robort@example.com",
     phoneNumber: "+1 (555) 123-4567",
   });
+  const navigate = useNavigate();
+   const menuItems = [
+    { id: "home", label: "Home", img: "home.png" },
+    { id: "create", label: "Create New Trip", img: "clock.png" },
+    { id: "packing", label: "Packing List", img: "list.png" },
+    { id: "history", label: "Trip History", img: "map.png" },
+    {id: "settings", label:"Settings", img:"settings.png"}
+  ];
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -126,89 +135,175 @@ const Settings = () => {
   };
 
   return (
-    <>
-      
-      <style>{css}</style>
-
-      <div className="settings-page">
-      
-        <div className="settings-header">
-          <h1>Profile Settings</h1>
-          <p>Manage your account settings and preferences</p>
+    <div style={{ display: "flex", height: "100vh", background: "#e3e7f6ff" }}>
+      {/* Sidebar */}
+      <div
+        style={{
+          width: "250px",
+          background: "linear-gradient(180deg, #90b4efff)",
+          padding: "20px",
+          color: "white",
+          display: "flex",
+          flexDirection: "column"
+        }}
+      >
+        {/* Logo/Header */}
+        <div style={{ marginBottom: "30px", borderBottom: "1px solid rgba(255,255,255,0.3)" }}>
+          <h2>Travel Cast</h2>
+          <p style={{ fontSize: "12px", opacity: 0.8 }}>Your Journey Starts</p>
         </div>
 
+        {/* Menu Items */}
+        <div style={{ flex: 1 }}>
+          {[
+            { id: "home", label: "Home", img: "home.png" },
+            { id: "create", label: "Create New Trip", img: "clock.png" },
+            { id: "packing", label: "Packing List", img: "list.png" },
+            { id: "history", label: "Trip History", img: "map.png" },
+            { id: "settings", label: "Settings", img: "settings.png" }
+          ].map(item => (
+            <button
+              key={item.id}
+              onClick={() => {
+                // Navigate to different pages based on menu item
+                switch(item.id) {
+                  case 'settings':
+                    // Already on settings page
+                    break;
+                  case 'home':
+                    navigate('/userdashboard');
+                    break;
+                  default:
+                    // Handle other menu items if needed
+                    console.log(`Navigating to ${item.id}`);
+                }
+              }}
+              style={{
+                width: "100%",
+                display: "flex",
+                alignItems: "center",
+                gap: "12px",
+                padding: "12px",
+                marginBottom: "8px",
+                background: item.id === "settings" ? "white" : "transparent",
+                color: item.id === "settings" ? "#2563eb" : "black",
+                border: "none",
+                borderRadius: "10px",
+                cursor: "pointer"
+              }}
+            >
+              <img src={item.img} alt={item.label} width={20} height={20} />
+              {item.label}
+            </button>
+          ))}
+        </div>
+
+        {/* Logout Button */}
+        <button
+          onClick={() => {
+            alert("Logged out successfully!");
+            // Add actual logout logic here
+          }}
+          style={{
+            padding: "12px",
+            background: "White",
+            border: "none",
+            borderRadius: "10px",
+            color: "Black",
+            cursor: "pointer",
+            width: "100%",
+            fontWeight: "bold",
+            marginTop: "20px"
+          }}
+        >
+          Logout
+        </button>
+      </div>
+
+      {/* Main Content Area */}
+      <div style={{ flex: 1, padding: "30px", overflowY: "auto" }}>
+        <style>{css}</style>
+
+        <div className="settings-page">
         
-        <div className="tabs">
-          <button className="tab active">Profile</button>
+          <div className="settings-header">
+            <h1>Profile Settings</h1>
+            <p>Manage your account settings and preferences</p>
+          </div>
+
           
-        </div>
-
-        
-        <div className="card">
-          <h2>Profile Information</h2>
-          <p className="muted">Update your personal information</p>
-
-          <div className="avatar-row">
-            <div className="avatar">RD</div>
-            <button className="outline-btn">📷 Change Photo</button>
+          <div className="tabs">
+            <button className="tab active">Profile</button>
+            
           </div>
 
-          <div className="form-grid">
-            <div>
-              <label>Full Name</label>
-              <input
-                name="fullName"
-                value={profile.fullName}
-                onChange={handleChange}
-              />
+          
+          <div className="card">
+            <h2>Profile Information</h2>
+            <p className="muted">Update your personal information</p>
+
+            <div className="avatar-row">
+              <div className="avatar">RD</div>
+              <button className="outline-btn">📷 Change Photo</button>
             </div>
 
-            <div>
-              <label>Email</label>
-              <input
-                name="email"
-                value={profile.email}
-                onChange={handleChange}
-              />
+            <div className="form-grid">
+              <div>
+                <label>Full Name</label>
+                <input
+                  name="fullName"
+                  value={profile.fullName}
+                  onChange={handleChange}
+                />
+              </div>
+
+              <div>
+                <label>Email</label>
+                <input
+                  name="email"
+                  value={profile.email}
+                  onChange={handleChange}
+                />
+              </div>
+
+              <div>
+                <label>Phone Number</label>
+                <input
+                  name="phoneNumber"
+                  value={profile.phoneNumber}
+                  onChange={handleChange}
+                />
+              </div>
             </div>
 
-            <div>
-              <label>Phone Number</label>
-              <input
-                name="phoneNumber"
-                value={profile.phoneNumber}
-                onChange={handleChange}
-              />
-            </div>
+            <button className="primary-btn">Save Changes</button>
           </div>
 
-          <button className="primary-btn">Save Changes</button>
-        </div>
+         
+          <div className="card">
+            <h2>Change Password</h2>
+            <p className="muted">Update your password to keep your account secure</p>
 
-       
-        <div className="card">
-          <h2>Change Password</h2>
-          <p className="muted">Update your password to keep your account secure</p>
+            <div className="form-grid">
+              <div>
+                <label>Current Password</label>
+                <input type="password" />
+              </div>
+              <div>
+                <label>New Password</label>
+                <input type="password" />
+              </div>
+              <div>
+                <label>Confirm New Password</label>
+                <input type="password" />
+              </div>
+            </div>
 
-          <div className="form-grid">
-            <div>
-              <label>Current Password</label>
-              <input type="password" />
-            </div>
-            <div>
-              <label>New Password</label>
-              <input type="password" />
-            </div>
-            <div>
-              <label>Confirm New Password</label>
-              <input type="password" />
-            </div>
+            <button className="primary-btn">Update Password</button>
           </div>
-
-          <button className="primary-btn">Update Password</button>
         </div>
       </div>
-    </>
+    </div>
   );
 };
 

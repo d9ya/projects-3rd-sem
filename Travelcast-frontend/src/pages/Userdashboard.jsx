@@ -1,8 +1,10 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 const UserDashboard = () => {
   const [activeMenu, setActiveMenu] = useState("home");
   const [showNotification, setShowNotification] =useState(false);
+  const navigate = useNavigate();
 
  
   const menuItems = [
@@ -54,7 +56,22 @@ const UserDashboard = () => {
             return (
               <button
                 key={item.id}
-                onClick={() => setActiveMenu(item.id)}
+                onClick={() => {
+                  setActiveMenu(item.id);
+                  // Navigate to different pages based on menu item
+                  switch(item.id) {
+                    case 'settings':
+                      navigate('/settings');
+                      break;
+                    case 'home':
+                      // Stay on dashboard or refresh
+                      window.location.reload();
+                      break;
+                    default:
+                      // Handle other menu items if needed
+                      console.log(`Navigating to ${item.id}`);
+                  }
+                }}
                 style={{
                   width: "100%",
                   display: "flex",
