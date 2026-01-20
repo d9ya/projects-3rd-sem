@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 
 
@@ -116,11 +116,33 @@ input {
 
 const Settings = () => {
   const [profile, setProfile] = useState({
-    fullName: "Robert Doe",
-    email: "robort@example.com",
-    phoneNumber: "+1 (555) 123-4567",
+    fullName: "",
+    email: "",
+    phoneNumber: ""
   });
+  const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
+  
+  // Fetch user profile data from backend
+  useEffect(() => {
+    const fetchProfileData = async () => {
+      try {
+        const response = await fetch('http://localhost:3000/api/profile');
+        if (response.ok) {
+          const data = await response.json();
+          setProfile(data);
+        } else {
+          console.error('Failed to fetch profile data');
+        }
+      } catch (error) {
+        console.error('Error fetching profile data:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    
+    fetchProfileData();
+  }, []);
    const menuItems = [
     { id: "home", label: "Home", img: "home.png" },
     { id: "create", label: "Create New Trip", img: "clock.png" },
