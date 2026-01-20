@@ -11,6 +11,8 @@ export default function LoginPage() {
     console.log("Username:", username);
     console.log("Password:", password);
     // Add login logic or navigation here
+        // Add login logic or navigation here
+
   };
 
   const styles = {
