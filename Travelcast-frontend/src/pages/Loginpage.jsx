@@ -1,16 +1,60 @@
 import React, { useState } from "react";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
+import { Link, useNavigate } from "react-router-dom";
+import toast from "react-hot-toast";
+import { loginUserApi } from "../services/api";
 
 export default function LoginPage() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  const handleLogin = (e) => {
+  const navigate = useNavigate();
+
+  const handleLogin = async (e) => {
     e.preventDefault();
-    console.log("Username:", username);
-    console.log("Password:", password);
-    // Add login logic or navigation here
+    if (loading) return;
+
+    if (username.trim().length < 2) {
+      return setError("Please enter a valid username.");
+    }
+    if (password.length < 6) {
+      return setError("Password must be at least 6 characters.");
+    }
+
+    setError("");
+    setLoading(true);
+
+    const data = { username, password };
+
+    try {
+      await toast.promise(
+        loginUserApi(data),
+        {
+          loading: "Logging in...",
+          success: (res) => {
+            // store token / user if backend sends it
+            if (res?.data?.token) {
+              localStorage.setItem("token", res.data.token);
+            }
+            if (res?.data?.user) {
+              localStorage.setItem("user", JSON.stringify(res.data.user));
+            }
+
+            setTimeout(() => navigate("/createTrip"), 1000);
+            return res?.data?.message || "Login successful!";
+          },
+          error: (err) =>
+            err?.response?.data?.message || "Invalid username or password",
+        }
+      );
+    } catch (err) {
+      err?.response?.data || err.message || err;
+    } finally {
+      setLoading(false);
+    }
   };
 
   const styles = {
@@ -90,6 +134,7 @@ export default function LoginPage() {
       fontSize: "22px",
       fontWeight: "700",
       cursor: "pointer",
+      opacity: loading ? 0.7 : 1,
     },
     link: {
       color: "#3043a1",
@@ -105,9 +150,12 @@ export default function LoginPage() {
   return (
     <div style={styles.container}>
       <img src="logo.png" alt="Logo" style={styles.logo} />
+
       <div style={styles.card}>
         <h2 style={styles.title}>Login</h2>
         <div style={styles.subtitle}>Welcome to Travelcast</div>
+
+        {error && <div style={{ color: "red", fontSize: "14px", marginBottom: "10px" }}>{error}</div>}
 
         <form onSubmit={handleLogin}>
           <div style={styles.inputGroup}>
@@ -116,8 +164,10 @@ export default function LoginPage() {
               type="text"
               placeholder="Username"
               value={username}
-              onChange={(e) => setUsername(e.target.value)}
-              required
+              onChange={(e) => {
+                setUsername(e.target.value);
+                setError("");
+              }}
             />
           </div>
 
@@ -127,8 +177,10 @@ export default function LoginPage() {
               type={showPassword ? "text" : "password"}
               placeholder="Password"
               value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
+              onChange={(e) => {
+                setPassword(e.target.value);
+                setError("");
+              }}
             />
             <span
               style={styles.passwordIcon}
@@ -145,11 +197,16 @@ export default function LoginPage() {
             <a href="#" style={styles.link}>Forgot Password?</a>
           </div>
 
-          <button type="submit" style={styles.button}>Login</button>
+          <button type="submit" style={styles.button} disabled={loading}>
+            {loading ? "Logging in..." : "Login"}
+          </button>
         </form>
 
         <p style={styles.loginText}>
-          Don't have an account? <a href="#" style={styles.link}><u>Sign up</u></a>
+          Don't have an account?{" "}
+          <Link to="/Register" style={styles.link}>
+            <u>Sign up</u>
+          </Link>
         </p>
       </div>
     </div>

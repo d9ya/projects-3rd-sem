@@ -16,5 +16,5 @@ Api.interceptors.request.use((req) => {
   return req;
 });
 
-export const createUserApi = (data) => Api.get("/api/register", data);
+export const createUserApi = (data) => Api.post("/api/register", data);
 export const loginUserApi = (data) => Api.post("/api/loginUser", data);
