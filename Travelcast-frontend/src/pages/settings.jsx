@@ -1,59 +1,53 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 
-
 const css = `
 .settings-page {
   max-width: 900px;
-  margin: 40px auto;
-  font-family: system-ui, sans-serif;
-  background: #e1e4eeff;
+  margin: 20px auto;
+  font-family: "Segoe UI", system-ui, sans-serif;
 }
 
 .settings-header h1 {
-  font-size: 28px;
-  margin-bottom: 6px;
+  font-size: 26px;
+  font-weight: 700;
 }
+
+.settings-header p {
+  color: #6b7280;
+  margin-top: 4px;
+}
+
 .tabs {
-  display: flex;
-  gap: 20px;
-  margin-bottom: 30px;
-  border-bottom: 1px solid #eee;
+  margin-top: 25px;
+  border-bottom: 1px solid #e5e7eb;
 }
 
 .tab {
   background: none;
   border: none;
-  padding: 10px 0;
+  padding: 12px 0;
   font-size: 15px;
+  font-weight: 600;
+  color: #2563eb;
+  border-bottom: 3px solid #2563eb;
   cursor: pointer;
-  color: #666;
 }
-
-.tab.active {
-  color: #000;
-  border-bottom: 2px solid #007bff;
-}
-
 
 .card {
-  background: #fff;
-  border: 1px solid #eee;
-  border-radius: 10px;
-  padding: 24px;
-  margin-bottom: 30px;
+  background: #ffffff;
+  border-radius: 16px;
+  padding: 28px;
+  margin-top: 30px;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.08);
 }
 
 .card h2 {
-  margin-bottom: 4px;
+  font-size: 18px;
+  margin-bottom: 22px;
 }
 
-.muted {
-  color: #777;
-  margin-bottom: 20px;
-}
-
-.avatar-row {
+.profile-row {
   display: flex;
   align-items: center;
   gap: 20px;
@@ -61,144 +55,129 @@ const css = `
 }
 
 .avatar {
-  width: 70px;
-  height: 70px;
+  width: 72px;
+  height: 72px;
   border-radius: 50%;
-  background: #007bff;
-  color: #fff;
+  background: linear-gradient(135deg, #2563eb, #3b82f6);
+  color: white;
+  font-weight: 700;
+  font-size: 26px;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-weight: bold;
-  font-size: 22px;
 }
 
-.outline-btn {
-  border: 1px solid #ddd;
-  background: #fff;
-  padding: 8px 14px;
-  border-radius: 6px;
+.change-photo-btn {
+  border: 1px solid #e5e7eb;
+  background: #ffffff;
+  padding: 10px 16px;
+  border-radius: 10px;
+  font-weight: 600;
+  color: #2563eb;
   cursor: pointer;
 }
 
-
-.form-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: 20px;
-  margin-bottom: 25px;
+.form-group {
+  margin-bottom: 18px;
 }
 
 label {
   font-size: 13px;
-  color: #555;
+  color: #6b7280;
 }
 
 input {
   width: 100%;
-  padding: 10px;
   margin-top: 6px;
-  border-radius: 6px;
-  border: 1px solid #ddd;
+  padding: 12px;
+  border-radius: 10px;
+  border: 1px solid #e5e7eb;
+  font-size: 14px;
 }
 
+input:focus {
+  outline: none;
+  border-color: #2563eb;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+}
 
 .primary-btn {
-  background: #007bff;
-  color: #fff;
+  margin-top: 25px;
+  background: linear-gradient(135deg, #2563eb, #3b82f6);
+  color: #ffffff;
   border: none;
-  padding: 10px 20px;
-  border-radius: 6px;
+  padding: 12px 30px;
+  border-radius: 10px;
+  font-weight: 600;
   cursor: pointer;
+  box-shadow: 0 8px 20px rgba(37, 99, 235, 0.35);
+}
+
+.password-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 15px;
 }
 `;
 
-
 const Settings = () => {
+  const navigate = useNavigate();
   const [profile, setProfile] = useState({
     fullName: "",
     email: "",
     phoneNumber: ""
   });
-  const [loading, setLoading] = useState(true);
-  const navigate = useNavigate();
-  
-  // Fetch user profile data from backend
+
   useEffect(() => {
-    const fetchProfileData = async () => {
+    const fetchProfile = async () => {
       try {
-        const response = await fetch('http://localhost:3000/api/profile');
-        if (response.ok) {
-          const data = await response.json();
+        const res = await fetch("http://localhost:3000/api/profile");
+        if (res.ok) {
+          const data = await res.json();
           setProfile(data);
-        } else {
-          console.error('Failed to fetch profile data');
         }
-      } catch (error) {
-        console.error('Error fetching profile data:', error);
-      } finally {
-        setLoading(false);
+      } catch (err) {
+        console.error(err);
       }
     };
-    
-    fetchProfileData();
+    fetchProfile();
   }, []);
-   const menuItems = [
+
+  const handleChange = (e) => {
+    setProfile({ ...profile, [e.target.name]: e.target.value });
+  };
+
+  const menuItems = [
     { id: "home", label: "Home", img: "home.png" },
     { id: "create", label: "Create New Trip", img: "clock.png" },
     { id: "packing", label: "Packing List", img: "list.png" },
     { id: "history", label: "Trip History", img: "map.png" },
-    {id: "settings", label:"Settings", img:"settings.png"}
+    { id: "settings", label: "Settings", img: "settings.png" }
   ];
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setProfile({ ...profile, [name]: value });
-  };
-
   return (
-    <div style={{ display: "flex", height: "100vh", background: "#e3e7f6ff" }}>
+    <div style={{ display: "flex", height: "100vh", background: "#eaf3ff" }}>
       {/* Sidebar */}
       <div
         style={{
           width: "250px",
-          background: "linear-gradient(180deg, #90b4efff)",
+          background: "linear-gradient(180deg, rgb(184, 211, 240))",
           padding: "20px",
-          color: "white",
           display: "flex",
           flexDirection: "column"
         }}
       >
-        {/* Logo/Header */}
-        <div style={{ marginBottom: "30px", borderBottom: "1px solid rgba(255,255,255,0.3)" }}>
+        <div style={{ marginBottom: "30px" }}>
           <h2>Travel Cast</h2>
-          <p style={{ fontSize: "12px", opacity: 0.8 }}>Your Journey Starts</p>
+          <p style={{ fontSize: "12px" }}>Your Journey Starts</p>
         </div>
 
-        {/* Menu Items */}
         <div style={{ flex: 1 }}>
-          {[
-            { id: "home", label: "Home", img: "home.png" },
-            { id: "create", label: "Create New Trip", img: "clock.png" },
-            { id: "packing", label: "Packing List", img: "list.png" },
-            { id: "history", label: "Trip History", img: "map.png" },
-            { id: "settings", label: "Settings", img: "settings.png" }
-          ].map(item => (
+          {menuItems.map((item) => (
             <button
               key={item.id}
               onClick={() => {
-                // Navigate to different pages based on menu item
-                switch(item.id) {
-                  case 'settings':
-                    // Already on settings page
-                    break;
-                  case 'home':
-                    navigate('/userdashboard');
-                    break;
-                  default:
-                    // Handle other menu items if needed
-                    console.log(`Navigating to ${item.id}`);
-                }
+                if (item.id === "home") navigate("/userdashboard");
               }}
               style={{
                 width: "100%",
@@ -206,119 +185,86 @@ const Settings = () => {
                 alignItems: "center",
                 gap: "12px",
                 padding: "12px",
-                marginBottom: "8px",
+                marginBottom: "14px",
                 background: item.id === "settings" ? "white" : "transparent",
                 color: item.id === "settings" ? "#2563eb" : "black",
                 border: "none",
                 borderRadius: "10px",
-                cursor: "pointer"
+                cursor: "pointer",
+                boxShadow: "0 2px 4px rgba(0,0,0,0.1)"
               }}
             >
-              <img src={item.img} alt={item.label} width={20} height={20} />
+              <img src={item.img} alt={item.label} width={20} />
               {item.label}
             </button>
           ))}
         </div>
 
-        {/* Logout Button */}
         <button
-          onClick={() => {
-            alert("Logged out successfully!");
-            // Add actual logout logic here
-          }}
+          onClick={() => alert("Logged out successfully")}
           style={{
+            display: "flex",
+            alignItems: "center",
+            gap: "12px",
             padding: "12px",
-            background: "White",
-            border: "none",
             borderRadius: "10px",
-            color: "Black",
+            border: "none",
             cursor: "pointer",
-            width: "100%",
-            fontWeight: "bold",
-            marginTop: "20px"
+            boxShadow: "0 2px 4px rgba(0,0,0,0.1)"
           }}
         >
+          <img src="logout.png" alt="Logout" width={20} />
           Logout
         </button>
       </div>
 
-      {/* Main Content Area */}
+      {/* Main */}
       <div style={{ flex: 1, padding: "30px", overflowY: "auto" }}>
         <style>{css}</style>
 
         <div className="settings-page">
-        
-          <div className="settings-header">
+          <div className="settings-header" style={{ background: 'white', padding: '20px', borderRadius: '8px', marginBottom: '20px' }}>
             <h1>Profile Settings</h1>
             <p>Manage your account settings and preferences</p>
           </div>
 
-          
           <div className="tabs">
-            <button className="tab active">Profile</button>
-            
+            <button className="tab">Profile</button>
           </div>
 
-          
           <div className="card">
             <h2>Profile Information</h2>
-            <p className="muted">Update your personal information</p>
 
-            <div className="avatar-row">
+            <div className="profile-row">
               <div className="avatar">RD</div>
-              <button className="outline-btn">📷 Change Photo</button>
+              <button className="change-photo-btn">📷 Change Photo</button>
             </div>
 
-            <div className="form-grid">
-              <div>
-                <label>Full Name</label>
-                <input
-                  name="fullName"
-                  value={profile.fullName}
-                  onChange={handleChange}
-                />
-              </div>
+            <div className="form-group">
+              <label>Full Name</label>
+              <input name="fullName" value={profile.fullName} onChange={handleChange} />
+            </div>
 
-              <div>
-                <label>Email</label>
-                <input
-                  name="email"
-                  value={profile.email}
-                  onChange={handleChange}
-                />
-              </div>
+            <div className="form-group">
+              <label>Email</label>
+              <input name="email" value={profile.email} onChange={handleChange} />
+            </div>
 
-              <div>
-                <label>Phone Number</label>
-                <input
-                  name="phoneNumber"
-                  value={profile.phoneNumber}
-                  onChange={handleChange}
-                />
-              </div>
+            <div className="form-group">
+              <label>Phone Number</label>
+              <input name="phoneNumber" value={profile.phoneNumber} onChange={handleChange} />
             </div>
 
             <button className="primary-btn">Save Changes</button>
           </div>
 
-         
           <div className="card">
             <h2>Change Password</h2>
-            <p className="muted">Update your password to keep your account secure</p>
 
-            <div className="form-grid">
-              <div>
-                <label>Current Password</label>
-                <input type="password" />
-              </div>
-              <div>
-                <label>New Password</label>
-                <input type="password" />
-              </div>
-              <div>
-                <label>Confirm New Password</label>
-                <input type="password" />
-              </div>
+            <div className="password-row">
+              <input type="password" placeholder="Current Password" />
+              <input type="password" placeholder="New Password" />
+              <input type="password" placeholder="Confirm New Password" />
             </div>
 
             <button className="primary-btn">Update Password</button>
