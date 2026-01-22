@@ -1,9 +1,11 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { Bell, ArrowRight, Search } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 const UserDashboard = () => {
   const navigate = useNavigate();
+  const [dashboardData, setDashboardData] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   const menuItems = [
     { id: "home", label: "Home", img: "home.png" },
@@ -13,6 +15,55 @@ const UserDashboard = () => {
     { id: "subscription", label: "Subscription", img: "notification.png" },
     { id: "settings", label: "Settings", img: "settings.png" }
   ];
+
+  useEffect(() => {
+    const fetchDashboardData = async () => {
+      try {
+        const response = await fetch('http://localhost:3000/api/dashboard');
+        if (response.ok) {
+          const data = await response.json();
+          setDashboardData(data);
+        } else {
+          console.error('Failed to fetch dashboard data');
+        }
+      } catch (error) {
+        console.error('Error fetching dashboard data:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchDashboardData();
+  }, []);
+
+  const currentWeather = dashboardData?.weather?.current || {
+    temperature: 24,
+    condition: "Sunny",
+    location: "Kathmandu, Nepal",
+    wind: "12 km/h",
+    humidity: "60%"
+  };
+
+  const forecast = dashboardData?.weather?.forecast || [
+    { day: "Mon", temp: 22, condition: "Sunny" },
+    { day: "Tue", temp: 23, condition: "Cloudy" },
+    { day: "Wed", temp: 25, condition: "Sunny" },
+    { day: "Thu", temp: 24, condition: "Rain" },
+    { day: "Fri", temp: 21, condition: "Cloudy" }
+  ];
+
+
+
+  const destinations = dashboardData?.destinations || [
+    { id: 1, tag: "Nature", title: "Machhapuchhre Mountain", location: "Pokhara, Nepal", img: "mount.jpg" },
+    { id: 2, tag: "Culture", title: "Muktinath Temple", location: "Mustang, Nepal", img: "place2.jpeg" },
+    { id: 3, tag: "Adventure", title: "ABC", location: "Nepal", img: "mountain.jpg" },
+    { id: 4, tag: "History", title: "Ram Janki Mandir", location: "Janakpur, Nepal", img: "janaki.png" }
+  ];
+
+  if (loading) {
+    return <div className="flex items-center justify-center h-screen">Loading...</div>;
+  }
 
   return (
     <div style={{ display: "flex", height: "100vh", background: "#f0f4fa" }}>
@@ -93,12 +144,12 @@ const UserDashboard = () => {
         {/* WEATHER SECTION */}
         <div className="mb-14">
           <div className="grid grid-cols-3 gap-6 mb-8">
-            <WeatherBox />
-            <SuitabilityBox />
-            <AlertBox />
+            <WeatherBox currentWeather={currentWeather} />
+            <SuitabilityBox suitability={dashboardData?.weather?.suitability || 85} />
+            <AlertBox alerts={dashboardData?.weather?.alerts || ["Light rain expected in next 48 hours"]} />
           </div>
 
-          <Forecast />
+          <Forecast forecast={forecast} />
         </div>
 
         {/* RECOMMENDED DESTINATIONS */}
@@ -109,31 +160,15 @@ const UserDashboard = () => {
         </SectionHeader>
 
         <div className="grid grid-cols-4 gap-6">
-          <DestinationCard
-            tag="Nature"
-            title="Machhapuchhre Mountain"
-            location="Pokhara, Nepal"
-            img="mount.jpg"
-          />
-           <DestinationCard
-            tag="Culture"
-            title="Muktinath Temple"
-            location="Mustang, Nepal"
-            img="place2.jpeg"
-          />
-           <DestinationCard
-            tag="Adventure"
-            title="ABC"
-            location=" Nepal"
-            img="mountain.jpg"
-          />
-           <DestinationCard
-            tag="History"
-            title="Ram Janki Mandir"
-            location="Janakpur, Nepal"
-            img="janaki.png"
-          />
-         
+          {destinations.map(destination => (
+            <DestinationCard
+              key={destination.id}
+              tag={destination.tag}
+              title={destination.title}
+              location={destination.location}
+              img={destination.img}
+            />
+          ))}
         </div>
 
       </div>
@@ -151,64 +186,52 @@ const SectionHeader = ({ title, desc, children }) => (
   </div>
 );
 
-const WeatherBox = () => (
+const WeatherBox = ({ currentWeather }) => (
   <div className="bg-white p-6 rounded-2xl shadow-sm">
     <h3 className="font-semibold">Current Weather</h3>
-    <p className="text-sm text-gray-500 mb-4">Kathmandu, Nepal</p>
+    <p className="text-sm text-gray-500 mb-4">{currentWeather.location}</p>
     <div className="flex items-center gap-4">
       <img src="sun.png" className="w-14 h-14" />
       <div>
-        <p className="text-3xl font-bold">24°C</p>
-        <p className="text-gray-600">Sunny</p>
+        <p className="text-3xl font-bold">{currentWeather.temperature}°C</p>
+        <p className="text-gray-600">{currentWeather.condition}</p>
       </div>
     </div>
-    <p className="text-sm text-gray-600 mt-4">Wind: 12 km/h</p>
-    <p className="text-sm text-gray-600">Humidity: 60%</p>
+    <p className="text-sm text-gray-600 mt-4">Wind: {currentWeather.wind}</p>
+    <p className="text-sm text-gray-600">Humidity: {currentWeather.humidity}</p>
   </div>
 );
 
-const SuitabilityBox = () => (
+const SuitabilityBox = ({ suitability }) => (
   <div className="bg-white p-6 rounded-2xl shadow-sm text-center flex flex-col justify-center">
     <h3 className="font-semibold mb-4">Travel Suitability</h3>
-    <p className="text-4xl font-bold text-green-600">85%</p>
+    <p className="text-4xl font-bold text-green-600">{suitability}%</p>
     <p className="text-gray-600 mt-2">Excellent for sightseeing & hiking</p>
   </div>
 );
 
-const AlertBox = () => (
+const AlertBox = ({ alerts }) => (
   <div className="bg-white p-6 rounded-2xl shadow-sm">
     <h3 className="font-semibold mb-4">Weather Alerts</h3>
-    <div className="bg-yellow-100 text-yellow-800 px-4 py-3 rounded-xl text-sm">
-      ⚠️ Light rain expected in next 48 hours
-    </div>
+    {alerts.map((alert, index) => (
+      <div key={index} className="bg-yellow-100 text-yellow-800 px-4 py-3 rounded-xl text-sm mb-2">
+        ⚠️ {alert}
+      </div>
+    ))}
   </div>
 );
 
-const Forecast = () => (
+const Forecast = ({ forecast }) => (
   <div className="bg-white p-6 rounded-2xl shadow-sm">
     <h3 className="font-semibold mb-6">5-Day Forecast</h3>
     <div className="grid grid-cols-5 gap-6 text-center">
-      {["Mon", "Tue", "Wed", "Thu", "Fri"].map((d, i) => (
+      {forecast.map((day, i) => (
         <div key={i} className="bg-gray-50 p-4 rounded-xl">
-          <p className="font-semibold">{d}</p>
+          <p className="font-semibold">{day.day}</p>
           <img src="sun.png" className="w-10 h-10 mx-auto my-2" />
-          <p className="font-semibold">{22 + i}°C</p>
+          <p className="font-semibold">{day.temp}°C</p>
         </div>
       ))}
-    </div>
-  </div>
-);
-
-const TripCard = ({ title, date, status, img }) => (
-  <div className="bg-white rounded-2xl overflow-hidden shadow-sm">
-    <img src={img} className="h-48 w-full object-cover" />
-    <div className="p-5">
-      <span className="text-sm font-semibold">{status}</span>
-      <h3 className="font-bold text-lg mt-2">{title}</h3>
-      <p className="text-gray-600 text-sm">{date}</p>
-      <button className="flex items-center gap-2 mt-4 font-semibold">
-        View Details <ArrowRight className="w-4 h-4" />
-      </button>
     </div>
   </div>
 );
