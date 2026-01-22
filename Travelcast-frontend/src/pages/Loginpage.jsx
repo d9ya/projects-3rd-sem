@@ -5,7 +5,7 @@ import toast from "react-hot-toast";
 import { loginUserApi } from "../services/api";
 
 export default function LoginPage() {
-  const [username, setUsername] = useState("");
+  const [email, setEmail] = useState(""); // use email, not username
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
@@ -17,8 +17,9 @@ export default function LoginPage() {
     e.preventDefault();
     if (loading) return;
 
-    if (username.trim().length < 2) {
-      return setError("Please enter a valid username.");
+    // Basic validation
+    if (!email.trim()) {
+      return setError("Please enter your email.");
     }
     if (password.length < 6) {
       return setError("Password must be at least 6 characters.");
@@ -27,31 +28,34 @@ export default function LoginPage() {
     setError("");
     setLoading(true);
 
-    const data = { username, password };
+    const data = { email, password };
 
     try {
-      await toast.promise(
+      const response = await toast.promise(
         loginUserApi(data),
         {
           loading: "Logging in...",
           success: (res) => {
-            // store token / user if backend sends it
-            if (res?.data?.token) {
-              localStorage.setItem("token", res.data.token);
-            }
-            if (res?.data?.user) {
-              localStorage.setItem("user", JSON.stringify(res.data.user));
-            }
+            const token = res?.data?.token;
+            const user = res?.data?.user;
+
+            if (token) localStorage.setItem("token", token);
+            if (user) localStorage.setItem("user", JSON.stringify(user));
 
             setTimeout(() => navigate("/createTrip"), 1000);
-            return res?.data?.message || "Login successful!";
+
+            return res?.data?.msg || "Login successful!";
           },
-          error: (err) =>
-            err?.response?.data?.message || "Invalid username or password",
+          error: (err) => {
+            if (err?.response?.data?.msg) return err.response.data.msg;
+            if (err?.message) return err.message;
+            return "Invalid email or password";
+          },
         }
       );
     } catch (err) {
-      err?.response?.data || err.message || err;
+      console.error("Login error:", err);
+      setError("Something went wrong. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -66,6 +70,7 @@ export default function LoginPage() {
       alignItems: "center",
       background: "url('backgroundimg.png') no-repeat center/cover",
       fontFamily: "Arial, sans-serif",
+      position: "relative",
     },
     card: {
       width: "500px",
@@ -161,11 +166,11 @@ export default function LoginPage() {
           <div style={styles.inputGroup}>
             <input
               style={styles.input}
-              type="text"
-              placeholder="Username"
-              value={username}
+              type="email"
+              placeholder="Email"
+              value={email}
               onChange={(e) => {
-                setUsername(e.target.value);
+                setEmail(e.target.value);
                 setError("");
               }}
             />
@@ -182,10 +187,7 @@ export default function LoginPage() {
                 setError("");
               }}
             />
-            <span
-              style={styles.passwordIcon}
-              onClick={() => setShowPassword(!showPassword)}
-            >
+            <span style={styles.passwordIcon} onClick={() => setShowPassword(!showPassword)}>
               {showPassword ? <FaEyeSlash /> : <FaEye />}
             </span>
           </div>
@@ -194,7 +196,9 @@ export default function LoginPage() {
             <label>
               <input type="checkbox" /> Remember me
             </label>
-            <a href="#" style={styles.link}>Forgot Password?</a>
+            <a href="#" style={styles.link}>
+              Forgot Password?
+            </a>
           </div>
 
           <button type="submit" style={styles.button} disabled={loading}>
@@ -204,7 +208,7 @@ export default function LoginPage() {
 
         <p style={styles.loginText}>
           Don't have an account?{" "}
-          <Link to="/Register" style={styles.link}>
+          <Link to="/register" style={styles.link}>
             <u>Sign up</u>
           </Link>
         </p>

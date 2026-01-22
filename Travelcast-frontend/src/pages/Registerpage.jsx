@@ -31,7 +31,7 @@ export default function Registerpage() {
     setError("");
     setLoading(true);
 
-    const data = { username, email, password, role: "user" };
+    const data = { username, email, password, role: "user" }; // ✅ include role
 
     try {
       await toast.promise(
@@ -47,22 +47,15 @@ export default function Registerpage() {
         }
       );
     } catch (err) {
-       err?.response?.data || err.message || err
+      console.error(err);
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div
-      className="min-h-screen flex items-center justify-center bg-cover bg-center relative"
-      style={{ backgroundImage: "url('backgroundimg.png')" }}
-    >
-      <img
-        src="logo.png"
-        alt="Logo"
-        className="absolute top-5 left-5 w-36 opacity-90"
-      />
+    <div className="min-h-screen flex items-center justify-center bg-cover bg-center relative" style={{ backgroundImage: "url('backgroundimg.png')" }}>
+      <img src="logo.png" alt="Logo" className="absolute top-5 left-5 w-36 opacity-90" />
 
       <div className="w-[520px] p-12 rounded-[60px] bg-white/30 backdrop-blur-[12px] shadow-lg text-center">
         <h2 className="text-3xl font-bold mb-6">Create Account</h2>
@@ -71,54 +64,21 @@ export default function Registerpage() {
         {error && <div className="text-red-500 text-sm mb-4">{error}</div>}
 
         <form onSubmit={handleRegistration} className="space-y-6">
-          <input
-            value={username}
-            onChange={(e) => { setUsername(e.target.value); setError(""); }}
-            placeholder="Username"
-            className="w-full px-5 py-3 rounded-full border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-400 bg-white/60 text-lg"
-          />
-
-          <input
-            value={email}
-            onChange={(e) => { setEmail(e.target.value); setError(""); }}
-            placeholder="Email"
-            className="w-full px-5 py-3 rounded-full border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-400 bg-white/60 text-lg"
-          />
+          <input value={username} onChange={(e) => { setUsername(e.target.value); setError(""); }} placeholder="Username" className="w-full px-5 py-3 rounded-full border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-400 bg-white/60 text-lg" />
+          <input value={email} onChange={(e) => { setEmail(e.target.value); setError(""); }} placeholder="Email" className="w-full px-5 py-3 rounded-full border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-400 bg-white/60 text-lg" />
 
           <div className="relative">
-            <input
-              type={showPassword ? "text" : "password"}
-              value={password}
-              onChange={(e) => { setPassword(e.target.value); setError(""); }}
-              placeholder="Password"
-              className="w-full px-5 py-3 rounded-full border border-gray-300 pr-12 focus:outline-none focus:ring-2 focus:ring-blue-400 bg-white/60 text-lg"
-            />
-            <span
-              onClick={() => setShowPassword(!showPassword)}
-              className="absolute right-4 top-1/2 -translate-y-1/2 cursor-pointer text-gray-600 text-lg"
-            >
-              {showPassword ? <FaEyeSlash /> : <FaEye />}
-            </span>
+            <input type={showPassword ? "text" : "password"} value={password} onChange={(e) => { setPassword(e.target.value); setError(""); }} placeholder="Password" className="w-full px-5 py-3 rounded-full border border-gray-300 pr-12 focus:outline-none focus:ring-2 focus:ring-blue-400 bg-white/60 text-lg" />
+            <span onClick={() => setShowPassword(!showPassword)} className="absolute right-4 top-1/2 -translate-y-1/2 cursor-pointer text-gray-600 text-lg">{showPassword ? <FaEyeSlash /> : <FaEye />}</span>
           </div>
 
-          <button
-        type="submit"
-        disabled={loading}
-        className="w-full py-4 rounded-full text-white font-semibold hover:opacity-90 disabled:opacity-60 text-lg"
-        style={{ backgroundColor: "#3043a1" }}
-         >
-        {loading ? "Signing up..." : "Sign Up"}
-        </button>
+          <button type="submit" disabled={loading} className="w-full py-4 rounded-full text-white font-semibold hover:opacity-90 disabled:opacity-60 text-lg" style={{ backgroundColor: "#3043a1" }}>
+            {loading ? "Signing up..." : "Sign Up"}
+          </button>
         </form>
 
         <p className="mt-8 text-sm">
-          Already have an account?{" "}
-          <Link
-      to="/login"
-      style={{ color: "#3043a1", fontWeight: "bold" }}
-      >Login
-      </Link>
-
+          Already have an account? <Link to="/login" style={{ color: "#3043a1", fontWeight: "bold" }}>Login</Link>
         </p>
       </div>
     </div>
