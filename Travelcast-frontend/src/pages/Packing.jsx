@@ -123,7 +123,7 @@ const Packing = () => {
           padding: 0;
           margin: 0;
         }
- 
+
         .must-haves li {
           display: flex;
           align-items: center;
@@ -131,7 +131,7 @@ const Packing = () => {
           margin-bottom: 18px;
           font-size: 15px;
         }
- 
+
         .notes {
           background: white;
           border-radius: 18px;
@@ -140,11 +140,11 @@ const Packing = () => {
           flex-direction: column;
           height: 460px;
         }
- 
+
         .notes h2 {
           margin-bottom: 18px;
         }
- 
+
         .notes textarea {
           flex: 1;
           border-radius: 14px;
@@ -153,13 +153,13 @@ const Packing = () => {
           font-size: 15px;
           resize: none;
         }
- 
+
         .add {
           padding: 0 35px 30px;
           display: flex;
           gap: 12px;
         }
- 
+
         .add input {
           flex: 1;
           padding: 14px;
@@ -167,7 +167,7 @@ const Packing = () => {
           border: 1px solid #cfd9e3;
           font-size: 15px;
         }
- 
+
         .add button {
           padding: 14px 26px;
           border-radius: 14px;
@@ -177,7 +177,7 @@ const Packing = () => {
           font-size: 15px;
           cursor: pointer;
         }
- 
+
         .save {
           margin: 0 35px 35px;
           padding: 16px;
@@ -190,7 +190,7 @@ const Packing = () => {
           font-weight: 600;
           cursor: pointer;
         }
- 
+
         @media (max-width: 850px) {
           .content {
             grid-template-columns: 1fr;
@@ -200,12 +200,12 @@ const Packing = () => {
           }
         }
       `}</style>
- 
+
       {/* GLOBAL LOGO */}
       <div className="global-logo">
-        <img src="logo.png" alt="Logo" />
+        <img src="travelcastlogo.png" alt="Logo" />
       </div>
- 
+
       <div className="page">
         <div className="header">
           <h1 className="title">Craft Your Packing List</h1>
@@ -214,14 +214,14 @@ const Packing = () => {
             Oct 26 – Nov 2
           </div>
         </div>
- 
+
         <div className="content">
           <div className="must-haves">
             <div className="must-header">
               <h2>🎒 My Must-Haves</h2>
               <span className="delete-btn" onClick={deleteItems}>🗑</span>
             </div>
- 
+
             <ul>
               {items.map((item, i) => (
                 <li key={i}>
@@ -235,7 +235,7 @@ const Packing = () => {
               ))}
             </ul>
           </div>
- 
+
           <div className="notes">
             <h2>📝 Notes</h2>
             <textarea
@@ -245,7 +245,7 @@ const Packing = () => {
             />
           </div>
         </div>
- 
+
         <div className="add">
           <input
             value={newItem}
@@ -254,7 +254,7 @@ const Packing = () => {
           />
           <button onClick={addItem}>Add</button>
         </div>
- 
+
         <button className="save" onClick={saveList}>
           ✔ Save Packing List
         </button>
@@ -262,8 +262,5 @@ const Packing = () => {
     </>
   );
 };
- 
+
 export default Packing;
- 
- 
- 
