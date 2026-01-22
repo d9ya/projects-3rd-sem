@@ -1,165 +1,159 @@
 import React, { useState } from "react";
-import styled from "styled-components";
+import { subscribeUserApi } from "../services/api"; // ✅ use the correct API function
 
-const Container = styled.div`
-  min-height: 100vh;
-  padding: 40px;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  justify-content: flex-start;
-  color: black;
-  font-family: Arial, sans-serif;
+export default function Subscriptionpage() {
+  const [message, setMessage] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  background-image: url("background.jpeg");
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
-  background-attachment: fixed;
+  // Get logged-in user from localStorage
+  const user = JSON.parse(localStorage.getItem("user"));
 
-  position: relative;
-`;
+  const plans = [
+    {
+      id: 1,
+      name: "Basic",
+      price: 200,
+      features: ["Weather forecast updates", "Basic travel tips"],
+    },
+    {
+      id: 2,
+      name: "Standard",
+      price: 400,
+      features: [
+        "Advanced weather insights",
+        "Personalized travel suggestions",
+      ],
+    },
+    {
+      id: 3,
+      name: "Premium",
+      price: 700,
+      features: [
+        "Real-time weather alerts",
+        "Full travel planner integration",
+        "24/7 support",
+      ],
+    },
+  ];
 
-const Box = styled.div`
-  background: rgba(255, 255, 255, 0.39);
-  backdrop-filter: blur(5px);
-  padding: 30px;
-  border-radius: 12px;
-  width: 450px;
-  display: flex;
-  flex-direction: column;
-  color: black;
-`;
-
-const Title = styled.h1`
-  margin-bottom: 20px;
-  font-size: 32px;
-  font-weight: bold;
-  text-align: center;
-`;
-
-const Label = styled.label`
-  margin-top: 12px;
-  font-size: 15px;
-  text-align: left;
-  color: black;
-`;
-
-const Input = styled.input`
-  margin-top: 5px;
-  padding: 10px;
-  border-radius: 6px;
-  border: 2px solid white;
-  outline: none;
-  font-size: 14px;
-  background-color: transparent;
-  color: black;
-  transition: border-color 0.3s, box-shadow 0.3s;
-
-  &:focus {
-    border-color: #00aaff;
-    box-shadow: 0 0 0 3px rgba(0, 170, 255, 0.3);
-  }
-`;
-
-const Button = styled.button`
-  margin-top: 20px;
-  padding: 12px;
-  background-color: #00aaff;
-  color: black;
-  font-size: 16px;
-  border: none;
-  border-radius: 30px;
-  cursor: pointer;
-  transition: 0.3s;
-
-  &:hover {
-    background-color: #0088cc;
-  }
-`;
-
-function Security() {
-  const [answers, setAnswers] = useState({
-    q1: "",
-    q2: "",
-    q3: "",
-    q4: ""
-  });
-
-  const styles = {
-    logo: {
-      position: "absolute",
-      top: "20px",
-      left: "20px",
-      width: "130px",
-      opacity: 0.9,
-    }
-  };
-
-  const handleChange = (e) => {
-    setAnswers({
-      ...answers,
-      [e.target.name]: e.target.value,
-    });
-  };
-
-  const handleSave = () => {
-    if (!answers.q1 || !answers.q2 || !answers.q3 || !answers.q4) {
-      alert("Please fill all fields!");
+  const handleSubscribe = async (planId, planName) => {
+    if (!user) {
+      setMessage("Please login to subscribe.");
       return;
     }
 
-    alert("Your security answers have been saved.");
+    if (loading) return;
+
+    try {
+      setLoading(true);
+      setMessage("");
+
+      await subscribeUserApi({
+        userId: user.id,
+        planId,
+      });
+
+      setMessage(`${planName} plan subscribed successfully! 🎉`);
+    } catch (error) {
+      setMessage(
+        error.response?.data?.message || "Subscription failed"
+      );
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const styles = {
+    container: {
+      height: "100vh",
+      width: "100%",
+      background: "url('background.png') no-repeat center/cover",
+      padding: "40px",
+      fontFamily: "Arial, sans-serif",
+      color: "#000",
+    },
+    title: {
+      fontSize: "28px",
+      fontWeight: "700",
+      marginBottom: "30px",
+    },
+    plansWrapper: {
+      display: "flex",
+      gap: "40px",
+      marginTop: "20px",
+      flexWrap: "wrap",
+    },
+    card: {
+      width: "250px",
+      padding: "30px",
+      border: "1px solid black",
+      background: "rgba(255, 255, 255, 0.4)",
+      backdropFilter: "blur(4px)",
+    },
+    planTitle: {
+      fontSize: "22px",
+      fontWeight: "700",
+      marginBottom: "10px",
+    },
+    price: {
+      fontSize: "20px",
+      fontWeight: "700",
+      marginBottom: "20px",
+    },
+    features: {
+      listStyle: "none",
+      padding: 0,
+      marginBottom: "25px",
+      color: "rgb(34, 90, 160)",
+      fontSize: "14px",
+    },
+    btn: {
+      width: "100%",
+      padding: "10px",
+      border: "1px solid #333",
+      background: "transparent",
+      cursor: "pointer",
+      fontSize: "15px",
+      opacity: loading ? 0.6 : 1,
+    },
+    message: {
+      marginTop: "20px",
+      fontWeight: "600",
+      color: "green",
+    },
   };
 
   return (
-    <Container>
-     
-      <img src="logo.png" alt="Logo" style={styles.logo} />
+    <div style={styles.container}>
+      <h1 style={styles.title}>Choose the best plan for you</h1>
 
-      <Box>
-        <Title>Security Questions</Title>
+      <div style={styles.plansWrapper}>
+        {plans.map((plan) => (
+          <div style={styles.card} key={plan.id}>
+            <div style={styles.planTitle}>{plan.name}</div>
+            <div style={styles.price}>
+              NPR <br />
+              {plan.price}/mo
+            </div>
 
-        <Label>Q1: What is your favourite food?</Label>
-        <Input
-          type="text"
-          name="q1"
-          value={answers.q1}
-          onChange={handleChange}
-          placeholder="Enter answer"
-        />
+            <ul style={styles.features}>
+              {plan.features.map((feature, idx) => (
+                <li key={idx}>• {feature}</li>
+              ))}
+            </ul>
 
-        <Label>Q2: What is your favourite place to visit?</Label>
-        <Input
-          type="text"
-          name="q2"
-          value={answers.q2}
-          onChange={handleChange}
-          placeholder="Enter answer"
-        />
+            <button
+              style={styles.btn}
+              disabled={loading}
+              onClick={() => handleSubscribe(plan.id, plan.name)}
+            >
+              {loading ? "Processing..." : "Subscribe"}
+            </button>
+          </div>
+        ))}
+      </div>
 
-        <Label>Q3: What is your favourite weather?</Label>
-        <Input
-          type="text"
-          name="q3"
-          value={answers.q3}
-          onChange={handleChange}
-          placeholder="Enter answer"
-        />
-
-        <Label>Q4: What is your birthplace?</Label>
-        <Input
-          type="text"
-          name="q4"
-          value={answers.q4}
-          onChange={handleChange}
-          placeholder="Enter answer"
-        />
-
-        <Button onClick={handleSave}>Save Answers</Button>
-      </Box>
-    </Container>
+      {message && <div style={styles.message}>{message}</div>}
+    </div>
   );
 }
-
-export default Security;

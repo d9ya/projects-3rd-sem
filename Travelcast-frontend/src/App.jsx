@@ -1,24 +1,33 @@
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import React from "react";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { Toaster } from "react-hot-toast";
+
 import Registerpage from "./pages/Registerpage";
 import LoginPage from "./pages/Loginpage";
+import CreateTripPage from "./pages/CreateTrippage";
 import Securitypage from "./pages/Securitypage";
-import ForgotPasswordPage from "./forgotPasswordPage";
 import UserDashboard from "./pages/Userdashboard";
-
-
+import Subscriptionpage from "./pages/Subscriptionpage";
+import Packing from "./pages/Packing";
 
 function App() {
   return (
-    <Router>
+    <BrowserRouter>
+      <Toaster />
       <Routes>
-        <Route path="/" element={<LoginPage />} />
-        <Route path="/register" element={<Registerpage />} />
+        {/* Auth */}
+        
         <Route path="/login" element={<LoginPage />} />
+        <Route path="/register" element={<Registerpage />} />
         <Route path="/security" element={<Securitypage />} />
-        <Route path="/forgot-password" element={<ForgotPasswordPage />} />
-        <Route path="/userdashboard" element={<UserDashboard/>} />
+
+        {/* App */}
+        <Route path="/createTrip" element={<CreateTripPage />} />
+        <Route path="/userdashboard" element={<UserDashboard />} />
+        <Route path="/subscription" element={<Subscriptionpage />} />
+        <Route path="/packing" element={<Packing />} />
       </Routes>
-    </Router>
+    </BrowserRouter>
   );
 }
 

@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-
+ 
 const Packing = () => {
   const [items, setItems] = useState([
     "Essential Medications",
@@ -9,14 +9,14 @@ const Packing = () => {
   const [selectedItems, setSelectedItems] = useState([]);
   const [newItem, setNewItem] = useState("");
   const [notes, setNotes] = useState("");
-
+ 
   const addItem = () => {
     if (newItem.trim()) {
       setItems([...items, newItem]);
       setNewItem("");
     }
   };
-
+ 
   const toggleSelect = (item) => {
     setSelectedItems((prev) =>
       prev.includes(item)
@@ -24,7 +24,7 @@ const Packing = () => {
         : [...prev, item]
     );
   };
-
+ 
   const deleteItems = () => {
     if (selectedItems.length === 0) {
       alert("Select items to delete");
@@ -33,7 +33,7 @@ const Packing = () => {
     setItems(items.filter((item) => !selectedItems.includes(item)));
     setSelectedItems([]);
   };
-
+ 
   const saveList = () => {
     if (!notes.trim()) {
       alert("⚠ Notes section is empty");
@@ -41,7 +41,7 @@ const Packing = () => {
       alert("✔ Packing list saved");
     }
   };
-
+ 
   return (
     <>
       <style>{`
@@ -52,19 +52,19 @@ const Packing = () => {
           background-size: cover;
           background-position: center;
         }
-
+ 
         .global-logo {
           position: fixed;
           top: 20px;
           left: 20px;
           z-index: 9999;
         }
-
+ 
         .global-logo img {
           height: 130px;
           width: 130px;
         }
-
+ 
         .page {
           max-width: 1050px;
           margin: 50px auto;
@@ -74,7 +74,7 @@ const Packing = () => {
           backdrop-filter: blur(18px);
           box-shadow: 0 30px 70px rgba(0,0,0,0.25);
         }
-
+ 
         .header {
           background: linear-gradient(135deg, #0b1f3a, #143d6b);
           padding: 45px 50px;
@@ -83,7 +83,7 @@ const Packing = () => {
           justify-content: space-between;
           align-items: center;
         }
-
+ 
         .title {
           font-size: 48px;
           font-weight: 900;
@@ -92,32 +92,32 @@ const Packing = () => {
             0 4px 10px rgba(0, 0, 0, 0.35),
             0 0 18px rgba(47, 128, 237, 0.45);
         }
-
+ 
         .content {
           padding: 35px;
           display: grid;
           grid-template-columns: 1fr 2.2fr;
           gap: 30px;
         }
-
+ 
         .must-haves {
           background: white;
           border-radius: 18px;
           padding: 30px;
         }
-
+ 
         .must-header {
           display: flex;
           justify-content: space-between;
           align-items: center;
           margin-bottom: 22px;
         }
-
+ 
         .delete-btn {
           cursor: pointer;
           font-size: 22px;
         }
-
+ 
         .must-haves ul {
           list-style: none;
           padding: 0;

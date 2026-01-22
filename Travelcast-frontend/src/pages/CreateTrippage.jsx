@@ -23,10 +23,40 @@ const CreateTrip = () => {
     trip.travelers > 1 &&
     setTrip({ ...trip, travelers: trip.travelers - 1 });
 
-  const handleSubmit = () => {
-    console.log(trip);
-    alert("Trip saved");
-  };
+  const handleSubmit = async () => {
+  try {
+    const response = await fetch("http://localhost:3000/api/trips/create", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(trip),
+    });
+
+    const data = await response.json();
+
+    if (response.ok) {
+      alert("Trip saved successfully ");
+
+      setTrip({
+        name: "",
+        destination: "",
+        startDate: "",
+        endDate: "",
+        travelers: 1,
+        note: "",
+      });
+
+      console.log("Saved trip:", data);
+    } else {
+      alert(data.message || "Something went wrong");
+    }
+  } catch (error) {
+    console.error("Submit error:", error);
+    alert("Backend not responding ❌");
+  }
+};
+
 
   const styles = {
     container: {
@@ -110,7 +140,7 @@ const CreateTrip = () => {
     card: {
     background: "#fff",
     padding: "30px",
-    paddingBottom: "90px",   // ✅ space for button
+    paddingBottom: "90px",   
     borderRadius: "14px",
     maxWidth: "1200px",
     width: "100%",
@@ -175,7 +205,7 @@ const CreateTrip = () => {
     },
 
     saveBtnWrapper: {
-    position: "absolute",   // 👈 CHANGE
+    position: "absolute",  
     bottom: "25px",
     right: "30px",
     },
