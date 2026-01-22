@@ -15,6 +15,7 @@ export default function LoginPage() {
 
   const handleLogin = async (e) => {
     e.preventDefault();
+<<<<<<< HEAD
     if (loading) return;
 
     if (username.trim().length < 2) {
@@ -55,6 +56,13 @@ export default function LoginPage() {
     } finally {
       setLoading(false);
     }
+=======
+    console.log("Username:", username);
+    console.log("Password:", password);
+    // Add login logic or navigation here
+        // Add login logic or navigation here
+
+>>>>>>> d8ca73670ebb72293bb1daf96e75a28864e21458
   };
 
   const styles = {
