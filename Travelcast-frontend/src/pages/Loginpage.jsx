@@ -5,7 +5,7 @@ import toast from "react-hot-toast";
 import { loginUserApi } from "../services/api";
 
 export default function LoginPage() {
-  const [username, setUsername] = useState("");
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
@@ -15,12 +15,12 @@ export default function LoginPage() {
 
   const handleLogin = async (e) => {
     e.preventDefault();
-<<<<<<< HEAD
     if (loading) return;
 
-    if (username.trim().length < 2) {
-      return setError("Please enter a valid username.");
+    if (!email || !email.includes("@")) {
+      return setError("Please enter a valid email.");
     }
+
     if (password.length < 6) {
       return setError("Password must be at least 6 characters.");
     }
@@ -28,7 +28,7 @@ export default function LoginPage() {
     setError("");
     setLoading(true);
 
-    const data = { username, password };
+    const data = { email, password };
 
     try {
       await toast.promise(
@@ -36,33 +36,32 @@ export default function LoginPage() {
         {
           loading: "Logging in...",
           success: (res) => {
-            // store token / user if backend sends it
             if (res?.data?.token) {
               localStorage.setItem("token", res.data.token);
             }
+
             if (res?.data?.user) {
-              localStorage.setItem("user", JSON.stringify(res.data.user));
+              localStorage.setItem(
+                "user",
+                JSON.stringify(res.data.user)
+              );
             }
 
-            setTimeout(() => navigate("/createTrip"), 1000);
+            // ✅ NAVIGATE TO SUBSCRIPTION PAGE
+            setTimeout(() => navigate("/Subscription"), 1000);
+
             return res?.data?.message || "Login successful!";
           },
           error: (err) =>
-            err?.response?.data?.message || "Invalid username or password",
+            err?.response?.data?.message ||
+            "Invalid email or password",
         }
       );
     } catch (err) {
-      err?.response?.data || err.message || err;
+      console.error(err);
     } finally {
       setLoading(false);
     }
-=======
-    console.log("Username:", username);
-    console.log("Password:", password);
-    // Add login logic or navigation here
-        // Add login logic or navigation here
-
->>>>>>> d8ca73670ebb72293bb1daf96e75a28864e21458
   };
 
   const styles = {
@@ -161,19 +160,31 @@ export default function LoginPage() {
 
       <div style={styles.card}>
         <h2 style={styles.title}>Login</h2>
-        <div style={styles.subtitle}>Welcome to Travelcast</div>
+        <div style={styles.subtitle}>
+          Welcome to Travelcast
+        </div>
 
-        {error && <div style={{ color: "red", fontSize: "14px", marginBottom: "10px" }}>{error}</div>}
+        {error && (
+          <div
+            style={{
+              color: "red",
+              fontSize: "14px",
+              marginBottom: "10px",
+            }}
+          >
+            {error}
+          </div>
+        )}
 
         <form onSubmit={handleLogin}>
           <div style={styles.inputGroup}>
             <input
               style={styles.input}
-              type="text"
-              placeholder="Username"
-              value={username}
+              type="email"
+              placeholder="Email"
+              value={email}
               onChange={(e) => {
-                setUsername(e.target.value);
+                setEmail(e.target.value);
                 setError("");
               }}
             />
@@ -192,7 +203,9 @@ export default function LoginPage() {
             />
             <span
               style={styles.passwordIcon}
-              onClick={() => setShowPassword(!showPassword)}
+              onClick={() =>
+                setShowPassword(!showPassword)
+              }
             >
               {showPassword ? <FaEyeSlash /> : <FaEye />}
             </span>
@@ -202,17 +215,23 @@ export default function LoginPage() {
             <label>
               <input type="checkbox" /> Remember me
             </label>
-            <a href="#" style={styles.link}>Forgot Password?</a>
+            <a href="#" style={styles.link}>
+              Forgot Password?
+            </a>
           </div>
 
-          <button type="submit" style={styles.button} disabled={loading}>
+          <button
+            type="submit"
+            style={styles.button}
+            disabled={loading}
+          >
             {loading ? "Logging in..." : "Login"}
           </button>
         </form>
 
         <p style={styles.loginText}>
-          Don't have an account?{" "}
-          <Link to="/Register" style={styles.link}>
+          Don&apos;t have an account?{" "}
+          <Link to="/register" style={styles.link}>
             <u>Sign up</u>
           </Link>
         </p>

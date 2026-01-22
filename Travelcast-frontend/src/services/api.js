@@ -1,13 +1,13 @@
 import axios from "axios";
 
 const Api = axios.create({
-  baseURL: import.meta.env.VITE_API_BASE_URL,
-  withCredentials: true,
+  baseURL: import.meta.env.VITE_API_BASE_URL || "http://localhost:3000",
   headers: {
     "Content-Type": "application/json",
   },
 });
 
+// Attach token automatically
 Api.interceptors.request.use((req) => {
   const token = localStorage.getItem("token");
   if (token) {
@@ -16,5 +16,7 @@ Api.interceptors.request.use((req) => {
   return req;
 });
 
-export const createUserApi = (data) => Api.post("/api/register", data);
-export const loginUserApi = (data) => Api.post("/api/loginUser", data);
+// Auth
+export const createUserApi = (data) => Api.post("/api/user/register", data);
+export const loginUserApi = (data) => Api.post("/api/user/loginUser", data);
+

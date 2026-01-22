@@ -1,58 +1,63 @@
 const { DataTypes } = require("sequelize");
 const { sequelize } = require("../database/database");
- 
+
 const User = sequelize.define(
-    "User",
-    {
-        id: {
-            type: DataTypes.INTEGER,
-            autoIncrement: true,
-            primaryKey: true,
-        },
-        username: {
-            type: DataTypes.STRING,
-            allowNull: false
-        },
-        email: {
-            type: DataTypes.STRING,
-            allowNull: false,
-            unique: true,
-            validate: {
-               
-                isEmail: true,
-            },
-        },
-        password: {
-            type: DataTypes.STRING,
-            allowNull: false,
-        },
- 
-        role: {
-            type: DataTypes.ENUM('user', 'admin'),
-            defaultValue: 'user',
-        },
- 
-        isVerified: {
-            type: DataTypes.BOOLEAN,
-            defaultValue: false,
-            allowNull: false
-        },
- 
-        verificationToken: {
-            type: DataTypes.STRING,
-            allowNull: true
-        },
- 
-        verificationTokenExpires:{
-            type: DataTypes.DATE,
-            allowNull: true
-        }
+  "User",
+  {
+    id: {
+      type: DataTypes.INTEGER,
+      autoIncrement: true,
+      primaryKey: true,
     },
-    {
-        tableName: "users",
-        timestamps: true,
-    }
+    username: {
+      type: DataTypes.STRING,
+      allowNull: false,
+      validate: {
+        notEmpty: true,
+      },
+      set(value) {
+        this.setDataValue("username", value.trim());
+      },
+    },
+    email: {
+      type: DataTypes.STRING,
+      allowNull: false,
+      unique: true,
+      validate: {
+        isEmail: true,
+      },
+      set(value) {
+        this.setDataValue("email", value.trim().toLowerCase());
+      },
+    },
+    password: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    role: {
+      type: DataTypes.ENUM("user", "admin"),
+      allowNull: false,
+      defaultValue: "user",
+    },
+    isVerified: {
+      type: DataTypes.BOOLEAN,
+      allowNull: false,
+      defaultValue: false,
+    },
+    verificationToken: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
+    verificationTokenExpires: {
+      type: DataTypes.DATE,
+      allowNull: true,
+      defaultValue: null,
+    },
+  },
+  {
+    tableName: "users",
+    timestamps: true,
+  }
 );
- 
+
 module.exports = User;
- 
