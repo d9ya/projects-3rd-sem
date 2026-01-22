@@ -21,6 +21,14 @@ app.use('/api', userRoutes);
 
 // Connect to database and start server
 connectDB().then(() => {
+  // Sync database models
+  const { sequelize } = require('./database/database');
+  const User = require('./models/User');
+  
+  // Sync all models
+  return sequelize.sync();
+}).then(() => {
+  const PORT = process.env.PORT || 3000;
   app.listen(PORT, () => {
     console.log(`Server running on http://localhost:${PORT}`);
   });

@@ -1,5 +1,6 @@
 const { DataTypes } = require('sequelize');
 const { sequelize } = require('../database/database');
+const bcrypt = require('bcryptjs');
 
 
 const User = sequelize.define('User', {
@@ -63,27 +64,21 @@ const User = sequelize.define('User', {
 // Hash password before saving
 User.beforeCreate(async (user) => {
   if (user.password) {
-    // const saltRounds = parseInt(process.env.BCRYPT_SALT_ROUNDS) || 12;
-    // user.password = await bcrypt.hash(user.password, saltRounds);
-    // For now, store password as plain text for testing
-    console.log('Password would be hashed here in production');
+    const saltRounds = parseInt(process.env.BCRYPT_SALT_ROUNDS) || 12;
+    user.password = await bcrypt.hash(user.password, saltRounds);
   }
 });
 
 User.beforeUpdate(async (user) => {
   if (user.changed('password')) {
-    // const saltRounds = parseInt(process.env.BCRYPT_SALT_ROUNDS) || 12;
-    // user.password = await bcrypt.hash(user.password, saltRounds);
-    // For now, store password as plain text for testing
-    console.log('Password would be hashed here in production');
+    const saltRounds = parseInt(process.env.BCRYPT_SALT_ROUNDS) || 12;
+    user.password = await bcrypt.hash(user.password, saltRounds);
   }
 });
 
 // Instance method to compare password
 User.prototype.comparePassword = async function(candidatePassword) {
-  // return await bcrypt.compare(candidatePassword, this.password);
-  // For now, simple string comparison for testing
-  return candidatePassword === this.password;
+  return await bcrypt.compare(candidatePassword, this.password);
 };
 
 module.exports = User;
