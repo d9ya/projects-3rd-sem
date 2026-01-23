@@ -1,4 +1,4 @@
-const User = require('../models/User');
+const User = require('../models/settingModel');
 
 const getUserProfile = async (req, res) => {
   try {
@@ -92,6 +92,48 @@ const getUserSettings = async (req, res) => {
   }
 };
 
+const subscribeUser = async (req, res) => {
+  try {
+    const { userId, planId } = req.body;
+    
+    // For now, we'll find a user by a known email
+    // In a real app, you would get the user ID from the authenticated token
+    const user = await User.findOne({ where: { email: 'john.doe@example.com' } });
+    
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: 'User not found'
+      });
+    }
+    
+    // Update user subscription info
+    user.subscription = {
+      planId,
+      startDate: new Date(),
+      status: 'active'
+    };
+    
+    await user.save();
+    
+    res.json({
+      success: true,
+      message: 'Subscribed successfully',
+      data: {
+        userId: user.id,
+        planId,
+        subscription: user.subscription
+      }
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: 'Error subscribing user',
+      error: error.message
+    });
+  }
+};
+
 const changePassword = async (req, res) => {
   try {
     const { currentPassword, newPassword, confirmPassword } = req.body;
@@ -152,5 +194,6 @@ module.exports = {
   getUserProfile,
   updateUserProfile,
   getUserSettings,
-  changePassword
+  changePassword,
+  subscribeUser
 };

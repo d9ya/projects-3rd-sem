@@ -9,6 +9,13 @@ const User = sequelize.define('User', {
     primaryKey: true,
     autoIncrement: true
   },
+  username: {
+    type: DataTypes.STRING,
+    allowNull: false,
+    validate: {
+      notEmpty: true
+    }
+  },
   fullName: {
     type: DataTypes.STRING,
     allowNull: false,
@@ -58,6 +65,18 @@ const User = sequelize.define('User', {
       lastPasswordChange: new Date(),
       trustedDevices: ["Chrome on Windows", "iPhone Safari"]
     }
+  },
+  subscription: {
+    type: DataTypes.JSON,
+    defaultValue: {
+      planId: null,
+      startDate: null,
+      status: 'inactive'
+    }
+  },
+  role: {
+    type: DataTypes.STRING,
+    defaultValue: 'user'
   }
 });
 

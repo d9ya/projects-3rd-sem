@@ -8,10 +8,13 @@ const registerUser = async (req, res) => {
   try {
     const { username, email, password, role } = req.body;
 
-    if (!username || !email || !password || !role) {
-      return res.status(400).json({ success: false, message: "All fields required" });
+    if (!username || !email || !password) {
+      return res.status(400).json({ success: false, message: "Required fields are missing: username, email, and password are required" });
     }
 
+    // Set default role if not provided
+    const userRole = role || 'user';
+    
     const existingUser = await User.findOne({ where: { email } }); // Could fail if DB not connected
     if (existingUser) {
       return res.status(400).json({ success: false, message: "User already exists" });
@@ -19,10 +22,17 @@ const registerUser = async (req, res) => {
 
     const hashedPassword = await bcrypt.hash(password, 10); // Could throw
 
-    const newUser = await User.create({ username, email, password: hashedPassword, role });
+    const userData = { 
+      username, 
+      email, 
+      password: hashedPassword, 
+      role: userRole
+    };
+    
+    const newUser = await User.create(userData);
     res.status(201).json({ success: true, data: newUser });
   } catch (err) {
-    console.error(err); // <- Make sure you log the error
+    console.error(err); 
     res.status(500).json({ success: false, message: "Server error" });
   }
 };

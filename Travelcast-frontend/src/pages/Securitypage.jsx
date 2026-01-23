@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { subscribeUserApi } from "../services/api"; // ✅ use the correct API function
 
-export default function Subscriptionpage() {
+export default function Securitypage() {
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
 

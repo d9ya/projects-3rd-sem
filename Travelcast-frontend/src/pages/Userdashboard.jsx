@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
-import { Bell, ArrowRight, Search } from "lucide-react";
+import { BiBell, BiSearch } from "react-icons/bi";
+import { FiArrowRight } from "react-icons/fi";
 import { useNavigate } from "react-router-dom";
 
 const UserDashboard = () => {
@@ -117,7 +118,7 @@ const UserDashboard = () => {
         {/* Top Bar */}
         <div className="flex justify-between mb-10">
           <div className="flex items-center gap-3 bg-white px-4 py-3 rounded-xl shadow-sm w-1/2">
-            <Search className="w-5 h-5 text-gray-400" />
+            <BiSearch className="w-5 h-5 text-gray-400" />
             <input
               type="text"
               placeholder="Search weather, destinations, trips..."
@@ -126,7 +127,7 @@ const UserDashboard = () => {
           </div>
 
           <div className="relative">
-            <Bell className="w-6 h-6 text-gray-600" />
+            <BiBell className="w-6 h-6 text-gray-600" />
             <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs px-2 rounded-full">
               3
             </span>

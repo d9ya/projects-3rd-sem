@@ -11,7 +11,7 @@ process.env.DB_PASSWORD,
         logging: false,
         port: Number(process.env.DB_PORT) || 5432, 
         dialectOptions: {
-            ssl: false // Disable SSL for local development
+            ssl: false 
         },
         pool: {
             max: 5,

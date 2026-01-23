@@ -4,8 +4,9 @@ const {
   getUserProfile,
   updateUserProfile,
   getUserSettings,
-  changePassword
-} = require('../controllers/userController');
+  changePassword,
+  subscribeUser
+} = require('../controllers/settingController');
 
 // Profile routes
 router.get('/profile', getUserProfile);
@@ -16,5 +17,8 @@ router.get('/settings', getUserSettings);
 
 // Password routes
 router.put('/change-password', changePassword);
+
+// Subscription routes
+router.post('/subscribe', subscribeUser);
 
 module.exports = router;
