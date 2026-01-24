@@ -3,7 +3,6 @@ const app = express();
 
 const userRoutes = require("./routes/userRoutes");
 const tripRoutes = require("./routes/tripRoutes");
-const subscriptionRoutes = require("./routes/subscriptionRoutes");
 
 const { connectDB, sequelize } = require("./database/database");
 
@@ -21,7 +20,6 @@ app.use(express.json());
 // Routes
 app.use("/api/user", userRoutes);
 app.use("/api/trips", tripRoutes);
-app.use("/api/subscriptions/", subscriptionRoutes);
 
 app.get("/", (req, res) => {
   res.json({ message: "Welcome to the Homepage" });
