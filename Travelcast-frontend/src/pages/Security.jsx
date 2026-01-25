@@ -1,7 +1,10 @@
 import React, { useState } from "react";
 
 import styled from "styled-components";
- 
+import axios from "axios";
+
+const email = localStorage.getItem("email");
+
 const Container = styled.div`
 
   min-height: 100vh;
@@ -180,19 +183,34 @@ function Security() {
 
   };
  
-  const handleSave = () => {
+  const handleSave = async () => {
+  if (!answers.q1 || !answers.q2 || !answers.q3 || !answers.q4) {
+    alert("Please fill all fields!");
+    return;
+  }
 
-    if (!answers.q1 || !answers.q2 || !answers.q3 || !answers.q4) {
+  try {
+    const res = await axios.post(
+      "http://localhost:3000/api/security/setup",
+      {
+        email,
+        question1: "What is your favourite food?",
+        answer1: answers.q1,
+        question2: "What is your favourite place to visit?",
+        answer2: answers.q2,
+        question3: "What is your favourite weather?",
+        answer3: answers.q3,
+        question4: "What is your birthplace?",
+        answer4: answers.q4,
+      }
+    );
 
-      alert("Please fill all fields!");
+    alert(res.data.message);
+  } catch (error) {
+    alert(error.response?.data?.message || "Something went wrong");
+  }
+};
 
-      return;
-
-    }
- 
-    alert("Your security answers have been saved.");
-
-  };
  
   return (
 <Container>

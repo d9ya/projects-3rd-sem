@@ -1,13 +1,14 @@
 import axios from "axios";
 
 const Api = axios.create({
-  baseURL: import.meta.env.VITE_API_BASE_URL, // http://localhost:3000
+  baseURL: import.meta.env.VITE_API_BASE_URL, // http://localhost:3000/api
   withCredentials: true,
   headers: {
     "Content-Type": "application/json",
   },
 });
 
+// Attach token automatically
 Api.interceptors.request.use((req) => {
   const token = localStorage.getItem("token");
   if (token) {
@@ -16,5 +17,22 @@ Api.interceptors.request.use((req) => {
   return req;
 });
 
-export const createUserApi = (data) => Api.post("/api/user/register", data);
-export const loginUserApi = (data) => Api.post("/api/user/loginUser", data);
+// ---------- USER ----------
+export const createUserApi = (data) =>
+  Api.post("/user/register", data);
+
+export const loginUserApi = (data) =>
+  Api.post("/user/login", data);
+
+// ---------- SECURITY ----------
+export const setupSecurityApi = (data) =>
+  Api.post("/security/setup", data);
+
+// ---------- SUBSCRIPTION ----------
+export const subscribeUserApi = (data) =>
+  Api.post("/subscription/subscribe", data);
+
+export const getUserSubscriptionsApi = (userId) =>
+  Api.get(`/subscription/user/${userId}`);
+
+export default Api;

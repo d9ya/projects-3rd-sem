@@ -6,6 +6,7 @@ import CreateTripPage from "./pages/CreateTrippage";
 import { Toaster } from "react-hot-toast";
 import Packing from "./pages/Packing";
 import Security from "./pages/Security";
+import Subscriptionpage from "./pages/Subscriptionpage";
 
 function App() {
   return (
@@ -17,6 +18,8 @@ function App() {
         <Route path="/createTrip" element={<CreateTripPage />} />
         <Route path="/packing" element={<Packing />} />
         <Route path="/Security" element={<Security />} />
+         <Route path="/subscription" element={<Subscriptionpage/>} />
+
       </Routes>
     </BrowserRouter>
   );
