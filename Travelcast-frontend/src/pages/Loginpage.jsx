@@ -5,7 +5,7 @@ import toast from "react-hot-toast";
 import { loginUserApi } from "../services/api";
 
 export default function LoginPage() {
-  const [email, setEmail] = useState(""); // use email, not username
+  const [email, setEmail] = useState(""); // use email
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
@@ -31,7 +31,7 @@ export default function LoginPage() {
     const data = { email, password };
 
     try {
-      const response = await toast.promise(
+      await toast.promise(
         loginUserApi(data),
         {
           loading: "Logging in...",
@@ -42,7 +42,10 @@ export default function LoginPage() {
             if (token) localStorage.setItem("token", token);
             if (user) localStorage.setItem("user", JSON.stringify(user));
 
-            setTimeout(() => navigate("/createTrip"), 1000);
+            // ✅ REDIRECT TO SUBSCRIPTION PAGE
+            setTimeout(() => {
+              navigate("/subscription");
+            }, 1000);
 
             return res?.data?.msg || "Login successful!";
           },
@@ -160,7 +163,11 @@ export default function LoginPage() {
         <h2 style={styles.title}>Login</h2>
         <div style={styles.subtitle}>Welcome to Travelcast</div>
 
-        {error && <div style={{ color: "red", fontSize: "14px", marginBottom: "10px" }}>{error}</div>}
+        {error && (
+          <div style={{ color: "red", fontSize: "14px", marginBottom: "10px" }}>
+            {error}
+          </div>
+        )}
 
         <form onSubmit={handleLogin}>
           <div style={styles.inputGroup}>
@@ -187,7 +194,10 @@ export default function LoginPage() {
                 setError("");
               }}
             />
-            <span style={styles.passwordIcon} onClick={() => setShowPassword(!showPassword)}>
+            <span
+              style={styles.passwordIcon}
+              onClick={() => setShowPassword(!showPassword)}
+            >
               {showPassword ? <FaEyeSlash /> : <FaEye />}
             </span>
           </div>
