@@ -1,25 +1,31 @@
 import React from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { Toaster } from "react-hot-toast";
+
 import Registerpage from "./pages/Registerpage";
 import LoginPage from "./pages/Loginpage";
 import CreateTripPage from "./pages/CreateTrippage";
-import { Toaster } from "react-hot-toast";
-import Packing from "./pages/Packing";
-import Security from "./pages/Security";
+import Securitypage from "./pages/Securitypage";
+import UserDashboard from "./pages/Userdashboard";
 import Subscriptionpage from "./pages/Subscriptionpage";
+import Packing from "./pages/Packing";
 
 function App() {
   return (
     <BrowserRouter>
       <Toaster />
       <Routes>
-        <Route path="/Register" element={<Registerpage />} />
-        <Route path="/Login" element={<LoginPage />} />
-        <Route path="/createTrip" element={<CreateTripPage />} />
-        <Route path="/packing" element={<Packing />} />
-        <Route path="/Security" element={<Security />} />
-         <Route path="/subscription" element={<Subscriptionpage/>} />
+        {/* Auth */}
+        
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/register" element={<Registerpage />} />
+        <Route path="/security" element={<Securitypage />} />
 
+        {/* App */}
+        <Route path="/createTrip" element={<CreateTripPage />} />
+        <Route path="/userdashboard" element={<UserDashboard />} />
+        <Route path="/subscription" element={<Subscriptionpage />} />
+        <Route path="/packing" element={<Packing />} />
       </Routes>
     </BrowserRouter>
   );

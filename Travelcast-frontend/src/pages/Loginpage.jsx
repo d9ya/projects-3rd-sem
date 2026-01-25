@@ -5,7 +5,7 @@ import toast from "react-hot-toast";
 import { loginUserApi } from "../services/api";
 
 export default function LoginPage() {
-  const [email, setEmail] = useState(""); // use email
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
@@ -17,10 +17,10 @@ export default function LoginPage() {
     e.preventDefault();
     if (loading) return;
 
-    // Basic validation
-    if (!email.trim()) {
-      return setError("Please enter your email.");
+    if (!email || !email.includes("@")) {
+      return setError("Please enter a valid email.");
     }
+
     if (password.length < 6) {
       return setError("Password must be at least 6 characters.");
     }
@@ -36,29 +36,29 @@ export default function LoginPage() {
         {
           loading: "Logging in...",
           success: (res) => {
-            const token = res?.data?.token;
-            const user = res?.data?.user;
+            if (res?.data?.token) {
+              localStorage.setItem("token", res.data.token);
+            }
 
-            if (token) localStorage.setItem("token", token);
-            if (user) localStorage.setItem("user", JSON.stringify(user));
+            if (res?.data?.user) {
+              localStorage.setItem(
+                "user",
+                JSON.stringify(res.data.user)
+              );
+            }
 
-            // ✅ REDIRECT TO SUBSCRIPTION PAGE
-            setTimeout(() => {
-              navigate("/subscription");
-            }, 1000);
+            // ✅ NAVIGATE TO SUBSCRIPTION PAGE
+            setTimeout(() => navigate("/Subscription"), 1000);
 
-            return res?.data?.msg || "Login successful!";
+            return res?.data?.message || "Login successful!";
           },
-          error: (err) => {
-            if (err?.response?.data?.msg) return err.response.data.msg;
-            if (err?.message) return err.message;
-            return "Invalid email or password";
-          },
+          error: (err) =>
+            err?.response?.data?.message ||
+            "Invalid email or password",
         }
       );
     } catch (err) {
-      console.error("Login error:", err);
-      setError("Something went wrong. Please try again.");
+      console.error(err);
     } finally {
       setLoading(false);
     }
@@ -161,7 +161,21 @@ export default function LoginPage() {
 
       <div style={styles.card}>
         <h2 style={styles.title}>Login</h2>
-        <div style={styles.subtitle}>Welcome to Travelcast</div>
+        <div style={styles.subtitle}>
+          Welcome to Travelcast
+        </div>
+
+        {error && (
+          <div
+            style={{
+              color: "red",
+              fontSize: "14px",
+              marginBottom: "10px",
+            }}
+          >
+            {error}
+          </div>
+        )}
 
         {error && (
           <div style={{ color: "red", fontSize: "14px", marginBottom: "10px" }}>
@@ -196,7 +210,9 @@ export default function LoginPage() {
             />
             <span
               style={styles.passwordIcon}
-              onClick={() => setShowPassword(!showPassword)}
+              onClick={() =>
+                setShowPassword(!showPassword)
+              }
             >
               {showPassword ? <FaEyeSlash /> : <FaEye />}
             </span>
@@ -211,13 +227,17 @@ export default function LoginPage() {
             </a>
           </div>
 
-          <button type="submit" style={styles.button} disabled={loading}>
+          <button
+            type="submit"
+            style={styles.button}
+            disabled={loading}
+          >
             {loading ? "Logging in..." : "Login"}
           </button>
         </form>
 
         <p style={styles.loginText}>
-          Don't have an account?{" "}
+          Don&apos;t have an account?{" "}
           <Link to="/register" style={styles.link}>
             <u>Sign up</u>
           </Link>
