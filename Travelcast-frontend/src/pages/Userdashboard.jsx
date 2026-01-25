@@ -187,21 +187,33 @@ const SectionHeader = ({ title, desc, children }) => (
   </div>
 );
 
-const WeatherBox = ({ currentWeather }) => (
-  <div className="bg-white p-6 rounded-2xl shadow-sm">
-    <h3 className="font-semibold">Current Weather</h3>
-    <p className="text-sm text-gray-500 mb-4">{currentWeather.location}</p>
-    <div className="flex items-center gap-4">
-      <img src="sun.png" className="w-14 h-14" />
-      <div>
-        <p className="text-3xl font-bold">{currentWeather.temperature}°C</p>
-        <p className="text-gray-600">{currentWeather.condition}</p>
+const WeatherBox = ({ currentWeather }) => {
+  // Function to get weather icon based on condition
+  const getWeatherIcon = (condition) => {
+    if (condition.toLowerCase().includes('rain')) return 'rain.png';
+    if (condition.toLowerCase().includes('cloud') || condition.toLowerCase().includes('overcast')) return 'clouds.png';
+    if (condition.toLowerCase().includes('sun') || condition.toLowerCase().includes('clear')) return 'sun.png';
+    if (condition.toLowerCase().includes('storm') || condition.toLowerCase().includes('thunder')) return 'clouds.png';
+    if (condition.toLowerCase().includes('snow')) return 'clouds.png';
+    return 'sun.png'; // default icon
+  };
+
+  return (
+    <div className="bg-white p-6 rounded-2xl shadow-sm">
+      <h3 className="font-semibold">Current Weather</h3>
+      <p className="text-sm text-gray-500 mb-4">{currentWeather.location}</p>
+      <div className="flex items-center gap-4">
+        <img src={getWeatherIcon(currentWeather.condition)} className="w-14 h-14" alt={currentWeather.condition} />
+        <div>
+          <p className="text-3xl font-bold">{currentWeather.temperature}°C</p>
+          <p className="text-gray-600">{currentWeather.condition}</p>
+        </div>
       </div>
+      <p className="text-sm text-gray-600 mt-4">Wind: {currentWeather.wind}</p>
+      <p className="text-sm text-gray-600">Humidity: {currentWeather.humidity}</p>
     </div>
-    <p className="text-sm text-gray-600 mt-4">Wind: {currentWeather.wind}</p>
-    <p className="text-sm text-gray-600">Humidity: {currentWeather.humidity}</p>
-  </div>
-);
+  );
+};
 
 const SuitabilityBox = ({ suitability }) => (
   <div className="bg-white p-6 rounded-2xl shadow-sm text-center flex flex-col justify-center">
@@ -222,20 +234,32 @@ const AlertBox = ({ alerts }) => (
   </div>
 );
 
-const Forecast = ({ forecast }) => (
-  <div className="bg-white p-6 rounded-2xl shadow-sm">
-    <h3 className="font-semibold mb-6">5-Day Forecast</h3>
-    <div className="grid grid-cols-5 gap-6 text-center">
-      {forecast.map((day, i) => (
-        <div key={i} className="bg-gray-50 p-4 rounded-xl">
-          <p className="font-semibold">{day.day}</p>
-          <img src="sun.png" className="w-10 h-10 mx-auto my-2" />
-          <p className="font-semibold">{day.temp}°C</p>
-        </div>
-      ))}
+const Forecast = ({ forecast }) => {
+  // Function to get weather icon based on condition
+  const getWeatherIcon = (condition) => {
+    if (condition.toLowerCase().includes('rain')) return 'rain.png';
+    if (condition.toLowerCase().includes('cloud') || condition.toLowerCase().includes('overcast')) return 'clouds.png';
+    if (condition.toLowerCase().includes('sun') || condition.toLowerCase().includes('clear')) return 'sun.png';
+    if (condition.toLowerCase().includes('storm') || condition.toLowerCase().includes('thunder')) return 'clouds.png'; // Could use storm icon if available
+    if (condition.toLowerCase().includes('snow')) return 'clouds.png'; // Could use snow icon if available
+    return 'sun.png'; // default icon
+  };
+
+  return (
+    <div className="bg-white p-6 rounded-2xl shadow-sm">
+      <h3 className="font-semibold mb-6">5-Day Forecast</h3>
+      <div className="grid grid-cols-5 gap-6 text-center">
+        {forecast.map((day, i) => (
+          <div key={i} className="bg-gray-50 p-4 rounded-xl">
+            <p className="font-semibold">{day.day}</p>
+            <img src={getWeatherIcon(day.condition)} className="w-10 h-10 mx-auto my-2" alt={day.condition} />
+            <p className="font-semibold">{day.temp}°C</p>
+          </div>
+        ))}
+      </div>
     </div>
-  </div>
-);
+  );
+};
 
 const DestinationCard = ({ tag, title, location, img }) => (
   <div className="bg-white rounded-2xl overflow-hidden shadow-sm">

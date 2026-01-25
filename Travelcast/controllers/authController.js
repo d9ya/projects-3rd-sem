@@ -1,5 +1,5 @@
 const User = require("../models/userModel");
-const bcrypt = require("bcrypt");
+const bcrypt = require("bcryptjs");
 const crypto = require("crypto");
 const jwt = require("jsonwebtoken"); // <-- Missing import
 const sendEmail = require("../utils/sendEmail");
@@ -25,7 +25,7 @@ const registerUser = async (req, res) => {
     const userData = { 
       username, 
       email, 
-      password: hashedPassword, 
+      password, 
       role: userRole
     };
     
@@ -39,6 +39,7 @@ const registerUser = async (req, res) => {
 
 const login = async (req, res) => {
   try {
+    console.log('Login request received:', req.body);
     const { email, password } = req.body;
 
     if (!email || !password) {
@@ -49,16 +50,19 @@ const login = async (req, res) => {
     }
 
     // Find user
+      
     const user = await User.findOne({ where: { email } });
+    console.log('User found:', user ? 'Yes' : 'No');
     if (!user) {
       return res.status(400).json({
         success: false,
         message: "User not found",
       });
     }
-
-    // Compare password
+    
     const isValidUser = await bcrypt.compare(password, user.password);
+    console.log('Password comparison result:', isValidUser);
+    
     if (!isValidUser) {
       return res.status(400).json({
         success: false,
@@ -67,6 +71,7 @@ const login = async (req, res) => {
     }
 
     // Generate JWT token
+    console.log('Generating JWT token...');
     const token = jwt.sign(
       {
         id: user.id,
@@ -78,6 +83,7 @@ const login = async (req, res) => {
       { expiresIn: "1d" }
     );
 
+    console.log('Token generated successfully');
     return res.status(200).json({
       success: true,
       message: "User logged in successfully",
