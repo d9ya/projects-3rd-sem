@@ -1,47 +1,96 @@
-import React, { useState } from "react";
- 
+import React, { useState, useEffect } from "react";
+import {
+  getPackingApi,
+  addPackingItemApi,
+  updatePackingItemApi,
+  deletePackingItemsApi,
+  savePackingNotesApi
+} from "../services/api";
+
 const Packing = () => {
-  const [items, setItems] = useState([
-    "Essential Medications",
-    "Wallet",
-    "Phone Charger",
-  ]);
-  const [selectedItems, setSelectedItems] = useState([]);
+  
+  const [items, setItems] = useState([]);
   const [newItem, setNewItem] = useState("");
   const [notes, setNotes] = useState("");
- 
-  const addItem = () => {
-    if (newItem.trim()) {
-      setItems([...items, newItem]);
-      setNewItem("");
+
+  
+  useEffect(() => {
+    fetchPackingItems();
+  }, []);
+
+  const fetchPackingItems = async () => {
+    try {
+      const res = await getPackingApi();
+      setItems(res.data);
+    } catch (err) {
+      console.error("Fetch error:", err);
     }
   };
- 
-  const toggleSelect = (item) => {
-    setSelectedItems((prev) =>
-      prev.includes(item)
-        ? prev.filter((i) => i !== item)
-        : [...prev, item]
-    );
+
+  
+  const addItem = async () => {
+    if (!newItem.trim()) return;
+
+    try {
+      const res = await addPackingItemApi({
+        item_name: newItem,
+      });
+      setItems([...items, res.data]);
+      setNewItem("");
+    } catch (err) {
+      console.error("Add error:", err);
+    }
   };
- 
-  const deleteItems = () => {
-    if (selectedItems.length === 0) {
+
+  
+  const toggleSelect = async (item) => {
+    try {
+      await updatePackingItemApi(item.id, {
+        isChecked: !item.is_checked,
+      });
+
+      setItems((prev) =>
+        prev.map((i) =>
+          i.id === item.id
+            ? { ...i, is_checked: !i.is_checked }
+            : i
+        )
+      );
+    } catch (err) {
+      console.error("Update error:", err);
+    }
+  };
+
+  
+  const deleteItems = async () => {
+    const idsToDelete = items
+      .filter((item) => item.is_checked)
+      .map((item) => item.id);
+
+    if (idsToDelete.length === 0) {
       alert("Select items to delete");
       return;
     }
-    setItems(items.filter((item) => !selectedItems.includes(item)));
-    setSelectedItems([]);
-  };
- 
-  const saveList = () => {
-    if (!notes.trim()) {
-      alert("⚠ Notes section is empty");
-    } else {
-      alert("✔ Packing list saved");
+
+    try {
+      await deletePackingItemsApi(idsToDelete);
+      setItems(items.filter((item) => !idsToDelete.includes(item.id)));
+    } catch (err) {
+      console.error("Delete error:", err);
     }
   };
- 
+
+  const saveList = async () => {
+  try {
+    await savePackingNotesApi({ notes });
+    alert("✔ Packing list saved");
+  } catch (err) {
+    console.error(err);
+    alert("⚠ Failed to save packing list");
+  }
+};
+
+
   return (
     <>
       <style>{`
@@ -52,19 +101,19 @@ const Packing = () => {
           background-size: cover;
           background-position: center;
         }
- 
+
         .global-logo {
           position: fixed;
           top: 20px;
           left: 20px;
           z-index: 9999;
         }
- 
+
         .global-logo img {
           height: 130px;
           width: 130px;
         }
- 
+
         .page {
           max-width: 1050px;
           margin: 50px auto;
@@ -74,7 +123,7 @@ const Packing = () => {
           backdrop-filter: blur(18px);
           box-shadow: 0 30px 70px rgba(0,0,0,0.25);
         }
- 
+
         .header {
           background: linear-gradient(135deg, #0b1f3a, #143d6b);
           padding: 45px 50px;
@@ -83,41 +132,38 @@ const Packing = () => {
           justify-content: space-between;
           align-items: center;
         }
- 
+
         .title {
           font-size: 48px;
           font-weight: 900;
           letter-spacing: 1.2px;
-          text-shadow:
-            0 4px 10px rgba(0, 0, 0, 0.35),
-            0 0 18px rgba(47, 128, 237, 0.45);
         }
- 
+
         .content {
           padding: 35px;
           display: grid;
           grid-template-columns: 1fr 2.2fr;
           gap: 30px;
         }
- 
+
         .must-haves {
           background: white;
           border-radius: 18px;
           padding: 30px;
         }
- 
+
         .must-header {
           display: flex;
           justify-content: space-between;
           align-items: center;
           margin-bottom: 22px;
         }
- 
+
         .delete-btn {
           cursor: pointer;
           font-size: 22px;
         }
- 
+
         .must-haves ul {
           list-style: none;
           padding: 0;
@@ -141,17 +187,11 @@ const Packing = () => {
           height: 460px;
         }
 
-        .notes h2 {
-          margin-bottom: 18px;
-        }
-
         .notes textarea {
           flex: 1;
           border-radius: 14px;
           padding: 16px;
           border: 1px solid #cfd9e3;
-          font-size: 15px;
-          resize: none;
         }
 
         .add {
@@ -164,17 +204,14 @@ const Packing = () => {
           flex: 1;
           padding: 14px;
           border-radius: 14px;
-          border: 1px solid #cfd9e3;
-          font-size: 15px;
         }
 
         .add button {
           padding: 14px 26px;
           border-radius: 14px;
-          border: none;
           background: #143d6b;
           color: white;
-          font-size: 15px;
+          border: none;
           cursor: pointer;
         }
 
@@ -186,22 +223,10 @@ const Packing = () => {
           background: linear-gradient(135deg, #143d6b, #2f80ed);
           color: white;
           border: none;
-          font-size: 17px;
-          font-weight: 600;
           cursor: pointer;
-        }
-
-        @media (max-width: 850px) {
-          .content {
-            grid-template-columns: 1fr;
-          }
-          .title {
-            font-size: 38px;
-          }
         }
       `}</style>
 
-      {/* GLOBAL LOGO */}
       <div className="global-logo">
         <img src="travelcastlogo.png" alt="Logo" />
       </div>
@@ -209,10 +234,6 @@ const Packing = () => {
       <div className="page">
         <div className="header">
           <h1 className="title">Craft Your Packing List</h1>
-          <div>
-            ✈️ Trip to Mustang<br />
-            Oct 26 – Nov 2
-          </div>
         </div>
 
         <div className="content">
@@ -223,14 +244,14 @@ const Packing = () => {
             </div>
 
             <ul>
-              {items.map((item, i) => (
-                <li key={i}>
+              {items.map((item) => (
+                <li key={item.id}>
                   <input
                     type="checkbox"
-                    checked={selectedItems.includes(item)}
+                    checked={item.is_checked}
                     onChange={() => toggleSelect(item)}
                   />
-                  {item}
+                  {item.item_name}
                 </li>
               ))}
             </ul>
@@ -239,7 +260,6 @@ const Packing = () => {
           <div className="notes">
             <h2>📝 Notes</h2>
             <textarea
-              placeholder="Write notes..."
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
             />
