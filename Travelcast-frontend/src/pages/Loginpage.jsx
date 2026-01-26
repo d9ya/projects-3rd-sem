@@ -73,6 +73,7 @@ export default function LoginPage() {
       alignItems: "center",
       background: "url('backgroundimg.png') no-repeat center/cover",
       fontFamily: "Arial, sans-serif",
+      position: "relative",
     },
     card: {
       width: "500px",
@@ -172,6 +173,12 @@ export default function LoginPage() {
               marginBottom: "10px",
             }}
           >
+            {error}
+          </div>
+        )}
+
+        {error && (
+          <div style={{ color: "red", fontSize: "14px", marginBottom: "10px" }}>
             {error}
           </div>
         )}
