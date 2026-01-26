@@ -103,7 +103,6 @@ const getDashboardData = (req, res) => {
 
     res.json(responseData);
   } catch (error) {
-    console.error('Error fetching dashboard data:', error);
     res.status(500).json({ error: 'Failed to fetch dashboard data' });
   }
 };
@@ -111,7 +110,6 @@ const getTripHistory = async (req, res) => {
   try {
     res.json(mockTrips);
   } catch (error) {
-    console.error('Error fetching trip history:', error);
     res.status(500).json({ error: 'Failed to fetch trip history' });
   }
 };

@@ -92,7 +92,6 @@ const UserDashboard = () => {
       setLoading(true);
       setError("");
       const data = await fetchWeatherByCity(city);
-      console.log(data);
       setWeatherData(data);
     } catch {
       setError("City not found");

@@ -130,8 +130,6 @@ User.addHook('afterSync', async () => {
       name: 'users_phone_number_unique'
     });
   } catch (error) {
-    // Constraint might already exist, ignore error
-    console.log('Phone number unique constraint already exists or error occurred');
   }
 });
 

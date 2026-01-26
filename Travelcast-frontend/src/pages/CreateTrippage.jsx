@@ -71,12 +71,12 @@ const handleLogout = () => {
         alert("Trip saved successfully!");
         setTrip({ name: "", destination: "", startDate: "", endDate: "", travelers: 1, note: "" });
         setWeather([]);
-        console.log("Saved trip:", data);
+       
       } else {
         alert(data.message || "Something went wrong");
       }
     } catch (error) {
-      console.error("Submit error:", error);
+      
       alert("Backend not responding");
     }
   };

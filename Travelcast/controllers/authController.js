@@ -31,14 +31,13 @@ const registerUser = async (req, res) => {
     const newUser = await User.create(userData);
     res.status(201).json({ success: true, data: newUser });
   } catch (err) {
-    console.error(err); 
     res.status(500).json({ success: false, message: "Server error" });
   }
 };
 
 const loginUser = async (req, res) => {
   try {
-    console.log('Login request received:', req.body);
+  
     const { email, password } = req.body;
 
     if (!email || !password) {
@@ -51,10 +50,9 @@ const loginUser = async (req, res) => {
     // Find user
       
     const user = await User.findOne({ where: { email } });
-    console.log('User found:', user ? 'Yes' : 'No');
+    
     if (user) {
-      console.log('Stored password hash:', user.password.substring(0, 20) + '...');
-      console.log('Attempting password comparison...');
+     
     }
     if (!user) {
       return res.status(400).json({
@@ -64,7 +62,7 @@ const loginUser = async (req, res) => {
     }
     
     const isValidUser = await bcrypt.compare(password, user.password);
-    console.log('Password comparison result:', isValidUser);
+    
     
     if (!isValidUser) {
       return res.status(400).json({
@@ -73,8 +71,7 @@ const loginUser = async (req, res) => {
       });
     }
 
-    // Generate JWT token
-    console.log('Generating JWT token...');
+   
     const token = jwt.sign(
       {
         id: user.id,
@@ -86,7 +83,6 @@ const loginUser = async (req, res) => {
       { expiresIn: "1d" }
     );
 
-    console.log('Token generated successfully');
     return res.status(200).json({
       success: true,
       message: "User logged in successfully",
@@ -95,7 +91,7 @@ const loginUser = async (req, res) => {
     });
 
   } catch (error) {
-    console.error("Login error:", error);
+   
     return res.status(500).json({
       success: false,
       message: "Error logging in user",

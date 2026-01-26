@@ -70,7 +70,6 @@ const updateUserProfile = async (req, res) => {
       },
     });
   } catch (error) {
-    console.error('Profile update error:', error);
 
     if (error.name === 'SequelizeUniqueConstraintError') {
       const fieldName = error.fields ? Object.keys(error.fields)[0] : '';
@@ -101,19 +100,13 @@ const updateUserProfile = async (req, res) => {
 
 const changePassword = async (req, res) => {
   try {
-    console.log('Change password request received:', req.body);
-    console.log('User from token:', req.user);
-
     if (!req.user) {
       return res.status(401).json({
         success: false,
         message: "Unauthorized",
       });
     }
-
     const { currentPassword, newPassword, confirmPassword } = req.body;
-
-    console.log('Password fields:', { currentPassword, newPassword, confirmPassword });
 
     if (!currentPassword || !newPassword || !confirmPassword) {
       return res.status(400).json({
@@ -137,18 +130,12 @@ const changePassword = async (req, res) => {
     }
 
     const user = await User.findByPk(req.user.id);
-    console.log('User found:', user ? 'Yes' : 'No');
-    console.log('Stored password hash:', user ? user.password.substring(0, 20) + '...' : 'N/A');
-
     if (!user) {
       return res.status(404).json({
         success: false,
         message: "User not found",
       });
     }
-    console.log('Comparing current password...');
-    const isMatch = await bcrypt.compare(currentPassword, user.password);
-    console.log('Password comparison result:', isMatch);
 
     if (!isMatch) {
       return res.status(400).json({
@@ -157,9 +144,8 @@ const changePassword = async (req, res) => {
       });
     }
     await user.update({ password: newPassword });
-    console.log('Password saved to database');
-
-    res.json({
+   
+ res.json({
       success: true,
       message: "Password changed successfully",
     });
