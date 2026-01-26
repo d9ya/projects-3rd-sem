@@ -1,4 +1,3 @@
-// backend/models/packingModel.js
 const { DataTypes } = require("sequelize");
 const { sequelize } = require("../database/database");
 
@@ -10,7 +9,7 @@ const PackingItem = sequelize.define(
       autoIncrement: true,
       primaryKey: true,
     },
-    item_name: {                // use exact DB column names
+    item_name: {                
       type: DataTypes.STRING,
       allowNull: false,
     },
@@ -33,7 +32,7 @@ const PackingItem = sequelize.define(
   {
     tableName: "packing_items",
     timestamps: false,
-    underscored: true           // important
+    underscored: true           
   }
 );
 
