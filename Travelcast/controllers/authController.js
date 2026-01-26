@@ -1,7 +1,7 @@
 const User = require("../models/userModel");
 const bcrypt = require("bcrypt");
 const crypto = require("crypto");
-const jwt = require("jsonwebtoken"); // <-- Missing import
+const jwt = require("jsonwebtoken"); 
 const sendEmail = require("../utils/sendEmail");
 
 const registerUser = async (req, res) => {
@@ -12,17 +12,27 @@ const registerUser = async (req, res) => {
       return res.status(400).json({ success: false, message: "All fields required" });
     }
 
-    const existingUser = await User.findOne({ where: { email } }); // Could fail if DB not connected
+    const existingUser = await User.findOne({ where: { email } }); 
     if (existingUser) {
       return res.status(400).json({ success: false, message: "User already exists" });
     }
 
-    const hashedPassword = await bcrypt.hash(password, 10); // Could throw
+    const hashedPassword = await bcrypt.hash(password, 10); 
 
     const newUser = await User.create({ username, email, password: hashedPassword, role });
-    res.status(201).json({ success: true, data: newUser });
+    res.status(201).json({
+  success: true,
+  message: "Account created successfully",
+  user: {
+    id: newUser.id,
+    username: newUser.username,
+    email: newUser.email,
+  }
+});
+
+
   } catch (err) {
-    console.error(err); // <- Make sure you log the error
+    console.error(err); 
     res.status(500).json({ success: false, message: "Server error" });
   }
 };
