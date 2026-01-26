@@ -1,7 +1,7 @@
 const express = require("express");
 const router = express.Router();
 
-// Decide which controller to use
+const { authenticateToken } = require('../middleware/auth');
 const useMock = process.env.USE_MOCK_DATA === "true";
 
 const {
@@ -12,9 +12,7 @@ const {
   : require("../controllers/dashboardController");
 
 // Main dashboard endpoint
-router.get("/dashboard", getDashboardData);
-
-// Trip history endpoint
-router.get("/trips/history", getTripHistory);
+router.get("/dashboard", authenticateToken, getDashboardData);
+router.get("/trips/history", authenticateToken, getTripHistory);
 
 module.exports = router;

@@ -1,191 +1,211 @@
-const User = require('../models/userModel');
+const User = require("../models/userModel");
+const bcrypt = require("bcryptjs");
 
 const getUserProfile = async (req, res) => {
   try {
-    // For now, we'll find a user by a known email
-    // In a real app, you would get the user ID from the authenticated token
-    const user = await User.findOne({ where: { email: 'john.doe@example.com' } });
-    
+    if (!req.user) {
+      return res.status(401).json({
+        success: false,
+        message: "Unauthorized",
+      });
+    }
+
+    const user = await User.findByPk(req.user.id);
+
     if (!user) {
       return res.status(404).json({
         success: false,
-        message: 'User not found'
+        message: "User not found",
       });
     }
-    
+
     res.json({
-      fullName: user.fullName,
-      email: user.email,
-      phoneNumber: user.phoneNumber
+      success: true,
+      data: {
+        fullName: user.username,
+        email: user.email,
+        phoneNumber: user.phoneNumber,
+      },
     });
   } catch (error) {
     res.status(500).json({
       success: false,
-      message: 'Error fetching user profile',
-      error: error.message
+      message: "Error fetching user profile",
     });
   }
 };
 
 const updateUserProfile = async (req, res) => {
   try {
-    // For now, we'll update a user by a known email
-    // In a real app, you would get the user ID from the authenticated token
+    if (!req.user) {
+      return res.status(401).json({
+        success: false,
+        message: "Unauthorized",
+      });
+    }
+
     const { fullName, email, phoneNumber } = req.body;
-    
-    const [updatedRowsCount] = await User.update(
-      { fullName, email, phoneNumber },
-      { where: { email: 'john.doe@example.com' } }
-    );
-    
-    if (updatedRowsCount === 0) {
-      return res.status(404).json({
-        success: false,
-        message: 'User not found'
-      });
-    }
-    
-    // Get the updated user
-    const updatedUser = await User.findOne({ where: { email: email } });
-    
-    res.json({
-      success: true,
-      message: 'Profile updated successfully',
-      data: {
-        fullName: updatedUser.fullName,
-        email: updatedUser.email,
-        phoneNumber: updatedUser.phoneNumber
-      }
-    });
-  } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: 'Error updating user profile',
-      error: error.message
-    });
-  }
-};
 
-const getUserSettings = async (req, res) => {
-  try {
-    // For now, we'll find a user by a known email
-    // In a real app, you would get the user ID from the authenticated token
-    const user = await User.findOne({ where: { email: 'john.doe@example.com' } });
-    
+    const user = await User.findByPk(req.user.id);
     if (!user) {
       return res.status(404).json({
         success: false,
-        message: 'User not found'
+        message: "User not found",
       });
     }
-    
-    res.json({
-      preferences: user.preferences,
-      security: user.security
-    });
-  } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: 'Error fetching user settings',
-      error: error.message
-    });
-  }
-};
 
-const subscribeUser = async (req, res) => {
-  try {
-    const { userId, planId } = req.body;
-    
-    // For now, we'll find a user by a known email
-    // In a real app, you would get the user ID from the authenticated token
-    const user = await User.findOne({ where: { email: 'john.doe@example.com' } });
-    
-    if (!user) {
-      return res.status(404).json({
-        success: false,
-        message: 'User not found'
-      });
-    }
-    
-    // Update user subscription info
-    user.subscription = {
-      planId,
-      startDate: new Date(),
-      status: 'active'
-    };
-    
+    if (fullName) user.username = fullName;
+    if (email) user.email = email;
+    if (phoneNumber) user.phoneNumber = phoneNumber;
+
     await user.save();
-    
+
     res.json({
       success: true,
-      message: 'Subscribed successfully',
+      message: "Profile updated successfully",
       data: {
-        userId: user.id,
-        planId,
-        subscription: user.subscription
-      }
+        fullName: user.username,
+        email: user.email,
+        phoneNumber: user.phoneNumber,
+      },
     });
   } catch (error) {
+    console.error('Profile update error:', error);
+
+    if (error.name === 'SequelizeUniqueConstraintError') {
+      const fieldName = error.fields ? Object.keys(error.fields)[0] : '';
+      if (fieldName === 'phoneNumber') {
+        return res.status(409).json({
+          success: false,
+          message: "This phone number is already exist",
+        });
+      } else if (fieldName === 'email') {
+        return res.status(409).json({
+          success: false,
+          message: "This email is already registered",
+        });
+      }
+    }
+    if (error.name === 'SequelizeValidationError') {
+      return res.status(400).json({
+        success: false,
+        message: error.message || "Invalid input data",
+      });
+    }
     res.status(500).json({
       success: false,
-      message: 'Error subscribing user',
-      error: error.message
+      message: "Error updating profile",
     });
   }
 };
 
 const changePassword = async (req, res) => {
   try {
+    console.log('Change password request received:', req.body);
+    console.log('User from token:', req.user);
+
+    if (!req.user) {
+      return res.status(401).json({
+        success: false,
+        message: "Unauthorized",
+      });
+    }
+
     const { currentPassword, newPassword, confirmPassword } = req.body;
-    
+
+    console.log('Password fields:', { currentPassword, newPassword, confirmPassword });
+
+    if (!currentPassword || !newPassword || !confirmPassword) {
+      return res.status(400).json({
+        success: false,
+        message: "All password fields are required",
+      });
+    }
+
     if (newPassword !== confirmPassword) {
       return res.status(400).json({
         success: false,
-        message: 'New passwords do not match'
+        message: "Passwords do not match",
       });
     }
-    
+
     if (newPassword.length < 6) {
       return res.status(400).json({
         success: false,
-        message: 'Password must be at least 6 characters long'
+        message: "Password must be at least 6 characters long",
       });
     }
-    
-    // For now, we'll find a user by a known email
-    // In a real app, you would get the user ID from the authenticated token
-    const user = await User.findOne({ where: { email: 'john.doe@example.com' } });
-    
+
+    const user = await User.findByPk(req.user.id);
+    console.log('User found:', user ? 'Yes' : 'No');
+    console.log('Stored password hash:', user ? user.password.substring(0, 20) + '...' : 'N/A');
+
     if (!user) {
       return res.status(404).json({
         success: false,
-        message: 'User not found'
+        message: "User not found",
       });
     }
-    
-    // Check if current password matches
-    const isMatch = await user.comparePassword(currentPassword);
+    console.log('Comparing current password...');
+    const isMatch = await bcrypt.compare(currentPassword, user.password);
+    console.log('Password comparison result:', isMatch);
+
     if (!isMatch) {
       return res.status(400).json({
         success: false,
-        message: 'Current password is incorrect'
+        message: "Current password is incorrect",
       });
     }
-    
-    // Update password
-    user.password = newPassword;
-    user.security.lastPasswordChange = new Date();
-    await user.save();
-    
+    await user.update({ password: newPassword });
+    console.log('Password saved to database');
+
     res.json({
       success: true,
-      message: 'Password changed successfully'
+      message: "Password changed successfully",
     });
   } catch (error) {
     res.status(500).json({
       success: false,
-      message: 'Error changing password',
-      error: error.message
+      message: "Error changing password",
+    });
+  }
+};
+const subscribeUser = async (req, res) => {
+  try {
+    if (!req.user) {
+      return res.status(401).json({
+        success: false,
+        message: "Unauthorized",
+      });
+    }
+    const { planId } = req.body;
+
+    if (!planId) {
+      return res.status(400).json({
+        success: false,
+        message: "Plan ID is required",
+      });
+    }
+
+    const user = await User.findByPk(req.user.id);
+
+    user.subscription = {
+      planId,
+      status: "active",
+      startDate: new Date(),
+    };
+
+    await user.save();
+
+    res.json({
+      success: true,
+      message: "Subscribed successfully",
+      data: user.subscription,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: "Error subscribing user",
     });
   }
 };
@@ -193,7 +213,6 @@ const changePassword = async (req, res) => {
 module.exports = {
   getUserProfile,
   updateUserProfile,
-  getUserSettings,
   changePassword,
-  subscribeUser
+  subscribeUser,
 };

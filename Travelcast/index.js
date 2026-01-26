@@ -1,12 +1,12 @@
 require('dotenv').config();
 const express = require("express");
 const cors = require('cors');
-const userRoutes = require('./routes/settingRoutes');
+const settingRoutes = require('./routes/settingRoutes');
 const authRoutes = require('./routes/authRoutes');
 const { connectDB } = require('./database/database');
 
 const app = express();
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 5000;
 
 // Middleware
 app.use(express.json());
@@ -21,7 +21,10 @@ app.get("/", (req, res) => {
 app.use('/api/user', authRoutes);
 
 // User routes
-app.use('/api', userRoutes);
+app.use('/api', settingRoutes)
+// app.use('/api', userRoutes);
+app.use("/api/dashboard", require("./routes/dashboardRoutes"));
+
 
 // Connect to database and start server
 connectDB().then(() => {
@@ -33,7 +36,7 @@ connectDB().then(() => {
   return sequelize.sync({ alter: true }); // Use alter to update existing tables without losing data
 }).then(() => {
   console.log("Database models synced successfully");
-  const PORT = process.env.PORT || 3000;
+  const PORT = process.env.PORT || 5000;
   app.listen(PORT, () => {
     console.log(`Server running on http://localhost:${PORT}`);
   });

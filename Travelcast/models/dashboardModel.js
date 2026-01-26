@@ -7,7 +7,6 @@ const buildDashboardResponse = (user, trips) => {
   };
 };
 
-// Format user data
 const formatUser = (user) => {
   if (!user) {
     return {
@@ -22,7 +21,6 @@ const formatUser = (user) => {
   };
 };
 
-// Calculate trip statistics
 const calculateTripStats = (trips) => {
   const now = new Date();
 
@@ -37,7 +35,6 @@ const calculateTripStats = (trips) => {
   };
 };
 
-// Recommended destinations (static for now)
 const getRecommendedDestinations = () => [
   {
     id: 1,

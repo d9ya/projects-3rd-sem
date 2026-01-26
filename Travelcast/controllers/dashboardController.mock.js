@@ -1,15 +1,10 @@
-// Simple dashboard controller using mock data for development
-// This provides all the data your UserDashboard frontend needs
-const weatherService = require('../utils/weatherService');
-
-// Mock user data
 const mockUser = {
   id: 1,
   username: "John",
+  fullName: "John Doe",
   email: "john@example.com"
 };
 
-// Mock trips data
 const mockTrips = [
   {
     id: 1,
@@ -41,55 +36,64 @@ const mockTrips = [
   }
 ];
 
-// Get dashboard data - main endpoint your frontend calls
-const getDashboardData = async (req, res) => {
+const getDashboardData = (req, res) => {
   try {
-    // Mock destinations data for the Recommended Destinations section
     const destinations = [
-      { 
-        id: 1, 
-        tag: "Nature", 
-        title: "Machhapuchhre Mountain", 
-        location: "Pokhara, Nepal", 
+      {
+        id: 1,
+        tag: "Nature",
+        title: "Machhapuchhre Mountain",
+        location: "Pokhara, Nepal",
         img: "mount.jpg"
       },
-      { 
-        id: 2, 
-        tag: "Culture", 
-        title: "Muktinath Temple", 
-        location: "Mustang, Nepal", 
+      {
+        id: 2,
+        tag: "Culture",
+        title: "Muktinath Temple",
+        location: "Mustang, Nepal",
         img: "place2.jpeg"
       },
-      { 
-        id: 3, 
-        tag: "Adventure", 
-        title: "ABC Trek", 
-        location: "Nepal", 
+      {
+        id: 3,
+        tag: "Adventure",
+        title: "ABC Trek",
+        location: "Nepal",
         img: "mountain.jpg"
       },
-      { 
-        id: 4, 
-        tag: "History", 
-        title: "Ram Janki Mandir", 
-        location: "Janakpur, Nepal", 
+      {
+        id: 4,
+        tag: "History",
+        title: "Ram Janki Mandir",
+        location: "Janakpur, Nepal",
         img: "janaki.png"
       }
     ];
-
-    // Get weather data (using mock for now, easy to switch to real API)
-    const weatherData = await weatherService.getWeatherData('Kathmandu', false); // Set to true when using real API
-
-    // Dashboard statistics
+    const weatherData = {
+      current: {
+        temperature: 24,
+        condition: "Sunny",
+        location: "Kathmandu, Nepal",
+        wind: "12 km/h",
+        humidity: "60%"
+      },
+      forecast: [
+        { day: "Mon", temp: 22, condition: "Sunny" },
+        { day: "Tue", temp: 23, condition: "Cloudy" },
+        { day: "Wed", temp: 25, condition: "Sunny" },
+        { day: "Thu", temp: 24, condition: "Rain" },
+        { day: "Fri", temp: 21, condition: "Cloudy" }
+      ],
+      suitability: 85,
+      alerts: ["Light rain expected in next 48 hours"]
+    };
     const stats = {
       totalTrips: mockTrips.length,
       upcomingTrips: mockTrips.filter(t => t.status === 'upcoming').length,
       completedTrips: mockTrips.filter(t => t.status === 'completed').length
     };
-
-    // Response data matching your frontend expectations
     const responseData = {
       user: {
-        name: mockUser.username,
+        name: mockUser.fullName || mockUser.username,
         email: mockUser.email
       },
       destinations: destinations,
@@ -103,8 +107,6 @@ const getDashboardData = async (req, res) => {
     res.status(500).json({ error: 'Failed to fetch dashboard data' });
   }
 };
-
-// Get trip history (for Trip History page)
 const getTripHistory = async (req, res) => {
   try {
     res.json(mockTrips);

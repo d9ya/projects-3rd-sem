@@ -6,7 +6,7 @@ const sendEmail = require("../utils/sendEmail");
 
 const registerUser = async (req, res) => {
   try {
-    const { username, email, password, role } = req.body;
+    const { username, fullName, email, password, role } = req.body;
 
     if (!username || !email || !password) {
       return res.status(400).json({ success: false, message: "Required fields are missing: username, email, and password are required" });
@@ -20,10 +20,9 @@ const registerUser = async (req, res) => {
       return res.status(400).json({ success: false, message: "User already exists" });
     }
 
-    const hashedPassword = await bcrypt.hash(password, 10); // Could throw
-
     const userData = { 
       username, 
+      fullName,
       email, 
       password, 
       role: userRole
@@ -37,7 +36,7 @@ const registerUser = async (req, res) => {
   }
 };
 
-const login = async (req, res) => {
+const loginUser = async (req, res) => {
   try {
     console.log('Login request received:', req.body);
     const { email, password } = req.body;
@@ -53,6 +52,10 @@ const login = async (req, res) => {
       
     const user = await User.findOne({ where: { email } });
     console.log('User found:', user ? 'Yes' : 'No');
+    if (user) {
+      console.log('Stored password hash:', user.password.substring(0, 20) + '...');
+      console.log('Attempting password comparison...');
+    }
     if (!user) {
       return res.status(400).json({
         success: false,
@@ -102,4 +105,4 @@ const login = async (req, res) => {
   }
 };
 
-module.exports = { registerUser, login };
+module.exports = { registerUser, loginUser };

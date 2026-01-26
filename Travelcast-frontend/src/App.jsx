@@ -10,6 +10,8 @@ import UserDashboard from "./pages/Userdashboard";
 import Settings from "./pages/settings";
 import Subscriptionpage from "./pages/Subscriptionpage";
 import Packing from "./pages/Packing";
+import ProtectedRoute from "./protected/ProtectedRoute";
+
 
 
 function App() {
@@ -22,8 +24,8 @@ function App() {
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<Registerpage />} />
         <Route path="/security" element={<Securitypage />} />
-        <Route path="/userdashboard" element={<UserDashboard/>} />
-        <Route path="/settings" element={<Settings/>} />
+        <Route path="/userdashboard" element={<ProtectedRoute allowedRoles={['user']} element={<UserDashboard />}/>} />
+        <Route path="/settings" element={<ProtectedRoute allowedRoles={['user']} element={<Settings />}/>} />
         
         {/* App */}
         <Route path="/createTrip" element={<CreateTripPage />} />
