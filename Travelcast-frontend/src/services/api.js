@@ -44,3 +44,5 @@ export const savePackingNotesApi = (data) =>
   Api.post("/api/packing/saveNotes", data);
 
 
+export const saveSecurityAnswersApi = (data) =>
+  Api.post("/api/security/setup", data);
