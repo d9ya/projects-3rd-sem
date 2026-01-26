@@ -137,12 +137,16 @@ const changePassword = async (req, res) => {
       });
     }
 
+    // Check current password
+    const isMatch = await bcrypt.compare(currentPassword, user.password);
     if (!isMatch) {
       return res.status(400).json({
         success: false,
         message: "Current password is incorrect",
       });
     }
+
+    // Update password - the beforeUpdate hook will handle hashing
     await user.update({ password: newPassword });
    
  res.json({
@@ -150,9 +154,27 @@ const changePassword = async (req, res) => {
       message: "Password changed successfully",
     });
   } catch (error) {
+    
+    
+    // Handle specific Sequelize errors
+    if (error.name === 'SequelizeValidationError') {
+      return res.status(400).json({
+        success: false,
+        message: error.message || "Invalid password format",
+      });
+    }
+    
+    // Handle other database errors
+    if (error.name && error.name.includes('Sequelize')) {
+      return res.status(500).json({
+        success: false,
+        message: "Database error occurred while changing password",
+      });
+    }
+    console.log(error)
     res.status(500).json({
       success: false,
-      message: "Error changing password",
+      message: "Error changing password: " + (error.message || "Unknown error"),
     });
   }
 };

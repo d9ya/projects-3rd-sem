@@ -37,7 +37,7 @@ const registerUser = async (req, res) => {
 
 const loginUser = async (req, res) => {
   try {
-  
+    console.log('Login request received:', req.body);
     const { email, password } = req.body;
 
     if (!email || !password) {
@@ -48,21 +48,18 @@ const loginUser = async (req, res) => {
     }
 
     // Find user
-      
+   
     const user = await User.findOne({ where: { email } });
     
-    if (user) {
-     
-    }
+    
     if (!user) {
       return res.status(400).json({
         success: false,
         message: "User not found",
       });
     }
-    
     const isValidUser = await bcrypt.compare(password, user.password);
-    
+   
     
     if (!isValidUser) {
       return res.status(400).json({
@@ -72,6 +69,7 @@ const loginUser = async (req, res) => {
     }
 
    
+    console.log('Generating JWT token...');
     const token = jwt.sign(
       {
         id: user.id,
@@ -82,6 +80,7 @@ const loginUser = async (req, res) => {
       process.env.JWT_SECRET,
       { expiresIn: "1d" }
     );
+    console.log('Token generated successfully');
 
     return res.status(200).json({
       success: true,

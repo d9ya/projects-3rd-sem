@@ -13,21 +13,37 @@ import { useNavigate } from "react-router-dom";
 
 const API_KEY = "4f11ab35f65e0493763249ca4395483f";
 const fetchWeatherByCity = async (city) => {
-  const [currentRes, forecastRes] = await Promise.all([
-    fetch(
-      `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${API_KEY}&units=metric`
-    ),
-    fetch(
-      `https://api.openweathermap.org/data/2.5/forecast?q=${city}&appid=${API_KEY}&units=metric`
-    ),
-  ]);
+  try {
+    const [currentRes, forecastRes] = await Promise.all([
+      fetch(
+        `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${API_KEY}&units=metric`
+      ),
+      fetch(
+        `https://api.openweathermap.org/data/2.5/forecast?q=${city}&appid=${API_KEY}&units=metric`
+      ),
+    ]);
 
-  if (!currentRes.ok || !forecastRes.ok) {
-    throw new Error("City not found");
-  }
+    // Check if either request failed
+    if (!currentRes.ok) {
+      const errorData = await currentRes.json().catch(() => ({}));
+      if (currentRes.status === 404) {
+        throw new Error("City not found");
+      } else {
+        throw new Error(errorData.message || "Weather service unavailable");
+      }
+    }
 
-  const current = await currentRes.json();
-  const forecastData = await forecastRes.json();
+    if (!forecastRes.ok) {
+      const errorData = await forecastRes.json().catch(() => ({}));
+      if (forecastRes.status === 404) {
+        throw new Error("City not found");
+      } else {
+        throw new Error(errorData.message || "Forecast service unavailable");
+      }
+    }
+
+    const current = await currentRes.json();
+    const forecastData = await forecastRes.json();
   
   const forecast = forecastData.list
     .filter((item) => item.dt_txt.includes("12:00:00"))
@@ -53,6 +69,10 @@ const fetchWeatherByCity = async (city) => {
     },
     forecast,
   };
+  } catch (error) {
+    console.error("Weather API error:", error);
+    throw error;
+  }
 };
 
 
@@ -93,8 +113,9 @@ const UserDashboard = () => {
       setError("");
       const data = await fetchWeatherByCity(city);
       setWeatherData(data);
-    } catch {
-      setError("City not found");
+    } catch (error) {
+      console.error("Weather search error:", error);
+      setError(error.message || "City not found");
     } finally {
       setLoading(false);
     }
@@ -180,6 +201,16 @@ const UserDashboard = () => {
           </div>
           <BiBell />
         </div>
+        {error && (
+          <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-6">
+            {error}
+          </div>
+        )}
+        {loading && (
+          <div className="text-center py-4">
+            <p>Searching for weather data...</p>
+          </div>
+        )}
         {weatherData && (
           <>
             <WeatherBox data={weatherData.current} />

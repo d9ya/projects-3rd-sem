@@ -1,5 +1,5 @@
 const { Trip } = require('../models/tripModel');
-const { User } = require('../models/userModel');
+const User = require('../models/userModel');
 const getDashboardData = async (req, res) => {
   try {
     const userId = req.user?.id; // Assuming you have authentication middleware that sets req.user
