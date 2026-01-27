@@ -6,9 +6,11 @@ import Registerpage from "./pages/Registerpage";
 import LoginPage from "./pages/Loginpage";
 import CreateTripPage from "./pages/CreateTrippage";
 import UserDashboard from "./pages/Userdashboard";
+import Settings from "./pages/settings";
 import Subscriptionpage from "./pages/Subscriptionpage";
 import Packing from "./pages/Packing";
 import Security from "./pages/Security";
+
 
 function App() {
   return (
@@ -19,12 +21,12 @@ function App() {
         
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<Registerpage />} />
-        <Route path="/security" element={<Security />} />
+        <Route path="/security" element={<Securitypage />} />
+        <Route path="/userdashboard" element={<UserDashboard/>} />
+        <Route path="/settings" element={<Settings/>} />
         
-
         {/* App */}
         <Route path="/createTrip" element={<CreateTripPage />} />
-        <Route path="/userdashboard" element={<UserDashboard />} />
         <Route path="/subscription" element={<Subscriptionpage />} />
         <Route path="/packing" element={<Packing />} />
       </Routes>

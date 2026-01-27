@@ -1,40 +1,43 @@
+require('dotenv').config();
 const express = require("express");
+const cors = require('cors');
+const userRoutes = require('./routes/settingRoutes');
+const authRoutes = require('./routes/authRoutes');
+const { connectDB } = require('./database/database');
+
 const app = express();
+const PORT = process.env.PORT || 3000;
 
-const userRoutes = require("./routes/userRoutes");
-const tripRoutes = require("./routes/tripRoutes");
-const packingRoutes = require("./routes/packingRoutes");
-const securityRoute = require("./routes/securityRoutes");
-
-const { connectDB, sequelize } = require("./database/database");
-
-const cors = require("cors");
-
-app.use(
-  cors({
-    origin: ["http://localhost:5173", "http://localhost:5174"],
-    credentials: true,
-  })
-);
-
+// Middleware
 app.use(express.json());
+app.use(cors());
 
-app.use("/api/user", userRoutes);
-app.use("/api/trips", tripRoutes);
-app.use("/api/packing", packingRoutes);
-app.use("/api/security", securityRoute);
-
+// API routes
 app.get("/", (req, res) => {
-  res.json({ message: "Welcome to the Homepage" });
+  res.json({ message: "Welcome to TravelCast API" });
 });
 
-const startServer = async () => {
-  await connectDB();
-  await sequelize.sync();
+// Auth routes
+app.use('/api/user', authRoutes);
 
-  app.listen(3000, () => {
-    console.log("Server is running on port 3000");
+// User routes
+app.use('/api', userRoutes);
+
+// Connect to database and start server
+connectDB().then(() => {
+  // Sync database models
+  const { sequelize } = require('./database/database');
+  
+  // Sync all models with alter: true to update existing tables without losing data
+  console.log("Syncing database models...");
+  return sequelize.sync({ alter: true }); // Use alter to update existing tables without losing data
+}).then(() => {
+  console.log("Database models synced successfully");
+  const PORT = process.env.PORT || 3000;
+  app.listen(PORT, () => {
+    console.log(`Server running on http://localhost:${PORT}`);
   });
-};
-
-startServer();
+}).catch(error => {
+  console.error('Failed to connect to database:', error);
+  process.exit(1);
+});

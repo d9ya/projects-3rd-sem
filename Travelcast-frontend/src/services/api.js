@@ -20,10 +20,8 @@ Api.interceptors.request.use((req) => {
 export const createUserApi = (data) => Api.post("/api/user/register", data);
 export const loginUserApi = (data) => Api.post("/api/user/loginUser", data);
 
-
-export const subscribeUserApi = (data) =>
-  Api.post("/api/subscription/subscribe", data);
-
+// Subscription
+export const subscribeUserApi = (data) => Api.post("/api/user/subscribe", data);
 
 export const getPackingApi = () =>
   Api.get("/api/packing");
