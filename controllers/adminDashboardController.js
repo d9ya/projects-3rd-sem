@@ -1,6 +1,6 @@
 const User = require("../models/userModel");
 
-// ✅ Get all users (Admin)
+//  Get all users 
 const getAllUsers = async (req, res) => {
   try {
     const users = await User.findAll({
@@ -20,7 +20,7 @@ const getAllUsers = async (req, res) => {
   }
 };
 
-// ✅ Delete user by ID (Admin)
+//  Delete user by ID 
 const deleteUserById = async (req, res) => {
   try {
     const { id } = req.params;
