@@ -5,7 +5,6 @@ import {
   BiHome,
   BiPlus,
   BiListCheck,
-  BiHistory,
   BiCog,
   BiLogOut,
 } from "react-icons/bi";
@@ -168,7 +167,6 @@ const UserDashboard = () => {
           <SidebarItem icon={<BiHome />} label="Home" onClick={() => navigate("/userdashboard")} />
           <SidebarItem icon={<BiPlus />} label="Create New Trip" />
           <SidebarItem icon={<BiListCheck />} label="Packing List" />
-          <SidebarItem icon={<BiHistory />} label="Trip History" />
           <SidebarItem icon={<BiBell />} label="Subscription" />
           <SidebarItem icon={<BiCog />} label="Settings" onClick={() => navigate("/settings")} />
         </div>
@@ -199,7 +197,7 @@ const UserDashboard = () => {
             />
             <button onClick={() => handleWeatherSearch()}>Search</button>
           </div>
-          <BiBell />
+         
         </div>
         {error && (
           <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-6">

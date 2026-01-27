@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
+import toast from "react-hot-toast";
 import {
   BiHome,
   BiPlus,
@@ -128,7 +129,7 @@ const Settings = () => {
   const [profileError, setProfileError] = useState("");
   const [passwordError, setPasswordError] = useState("");
 
-  
+
   useEffect(() => {
     const fetchProfile = async () => {
       try {
@@ -154,12 +155,12 @@ const Settings = () => {
     try {
       const res = await updateProfileApi(profile);
       if (res.data.success) {
-        alert("Profile updated successfully!");
+        toast.success("Profile updated successfully!");
       } else {
         setProfileError(res.data.message);
       }
     } catch {
-      setProfileError("Server error updating profile");
+      toast.error("Server error updating profile");
     } finally {
       setProfileLoading(false);
     }
@@ -183,19 +184,17 @@ const Settings = () => {
       });
 
       if (res.data.success) {
-        alert("Password changed successfully!");
+        toast.success("Password changed successfully!");
         setPasswordForm({
           currentPassword: "",
           newPassword: "",
           confirmPassword: "",
         });
       } else {
-        setPasswordError(res.data.message || "Failed to change password");
+        toast.error(res.data.message || "Failed to change password");
       }
     } catch (err) {
-      setPasswordError(
-        err.response?.data?.message || "Server error. Please try again."
-      );
+      toast.error(err.response?.data?.message || "Server error. Please try again.");
     } finally {
       setPasswordLoading(false);
     }
@@ -218,7 +217,6 @@ const Settings = () => {
           <SidebarItem icon={<BiHome />} label="Home" onClick={() => navigate("/userdashboard")} />
           <SidebarItem icon={<BiPlus />} label="Create New Trip" />
           <SidebarItem icon={<BiListCheck />} label="Packing List" />
-          <SidebarItem icon={<BiHistory />} label="Trip History" />
           <SidebarItem icon={<BiBell />} label="Subscription" />
           <SidebarItem icon={<BiCog />} label="Settings" active />
         </div>
