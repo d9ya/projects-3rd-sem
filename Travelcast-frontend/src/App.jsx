@@ -5,11 +5,11 @@ import { Toaster } from "react-hot-toast";
 import Registerpage from "./pages/Registerpage";
 import LoginPage from "./pages/Loginpage";
 import CreateTripPage from "./pages/CreateTrippage";
-import Securitypage from "./pages/Securitypage";
 import UserDashboard from "./pages/Userdashboard";
 import Settings from "./pages/settings";
 import Subscriptionpage from "./pages/Subscriptionpage";
 import Packing from "./pages/Packing";
+import Security from "./pages/Security";
 
 
 function App() {

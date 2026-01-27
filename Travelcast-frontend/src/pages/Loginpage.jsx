@@ -48,7 +48,7 @@ export default function LoginPage() {
             }
 
             // ✅ NAVIGATE TO SUBSCRIPTION PAGE
-            setTimeout(() => navigate("/Subscription"), 1000);
+            setTimeout(() => navigate("/userdashboard"), 1000);
 
             return res?.data?.message || "Login successful!";
           },
