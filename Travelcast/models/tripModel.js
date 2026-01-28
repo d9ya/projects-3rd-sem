@@ -32,6 +32,13 @@ const Trip = sequelize.define(
     note: {
       type: DataTypes.TEXT,
     },
+    weather: {
+      type: DataTypes.STRING,
+    },
+
+    temp: {
+      type: DataTypes.STRING,
+    },
   },
   {
     tableName: "trips",

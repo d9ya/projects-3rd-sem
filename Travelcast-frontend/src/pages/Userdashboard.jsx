@@ -88,28 +88,53 @@ const UserDashboard = () => {
 
         <div style={{ flex: 1 }}>
           {menuItems.map((item) => (
-            <button
-              key={item.id}
-              className="w-full flex items-center gap-3 px-4 py-3 mb-4 rounded-lg hover:bg-white shadow-md hover:shadow-lg transition-shadow duration-200"
-              onClick={() => {
-                if (item.id === "settings") {
-                  navigate("/settings");
-                } else if (item.id === "home") {
-                  navigate("/userdashboard");
-                }
-                // Add other navigation cases as needed
-              }}
-            >
-              <img src={item.img} alt={item.label} width={20} />
-              {item.label}
-            </button>
-          ))}
+  <button
+    key={item.id}
+    className="w-full flex items-center gap-3 px-4 py-3 mb-4 rounded-lg hover:bg-white shadow-md hover:shadow-lg transition-shadow duration-200"
+    onClick={() => {
+      switch (item.id) {
+        case "home":
+          navigate("/userdashboard");
+          break;
+        case "create":
+          navigate("/createTrip");
+          break;
+        case "packing":
+          navigate("/packing");
+          break;
+        case "history":
+          navigate("/tripHistory");
+          break;
+        case "subscription":
+          navigate("/subscription");
+          break;
+        case "settings":
+          navigate("/settings");
+          break;
+        default:
+          break;
+      }
+    }}
+  >
+    <img src={item.img} alt={item.label} width={20} />
+    {item.label}
+  </button>
+))}
+
         </div>
 
-        <button className="font-semibold flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-white w-full shadow-md hover:shadow-lg transition-shadow duration-200 mt-4">
-          <img src="logout.png" alt="Logout" width={20} />
-          Logout
-        </button>
+       <button
+  className="font-semibold flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-white w-full shadow-md hover:shadow-lg transition-shadow duration-200 mt-4"
+  onClick={() => {
+    localStorage.clear();
+    sessionStorage.clear();
+    navigate("/login");
+  }}
+>
+  <img src="logout.png" alt="Logout" width={20} />
+  Logout
+</button>
+
       </div>
 
       {/* Main Content */}
