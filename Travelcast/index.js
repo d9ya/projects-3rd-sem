@@ -1,13 +1,20 @@
 const express = require("express");
 const app = express();
+const cors = require("cors");
 
+// Routes
 const userRoutes = require("./routes/userRoutes");
 const tripRoutes = require("./routes/tripRoutes");
 
+const SubscriptionRoute = require("./routes/SubscriptionRoute");
+
+// DB
 const { connectDB, sequelize } = require("./database/database");
 
-const cors = require("cors");
+// Models
+const SubscriptionPlan = require("./models/subscriptionModel");
 
+// ---------- MIDDLEWARE ----------
 app.use(
   cors({
     origin: ["http://localhost:5173", "http://localhost:5174"],
@@ -17,21 +24,50 @@ app.use(
 
 app.use(express.json());
 
-// Routes
+// ---------- ROUTES ----------
 app.use("/api/user", userRoutes);
 app.use("/api/trips", tripRoutes);
+
+app.use("/api/subscription", SubscriptionRoute);
 
 app.get("/", (req, res) => {
   res.json({ message: "Welcome to the Homepage" });
 });
 
-const startServer = async () => {
-  await connectDB();
-  await sequelize.sync();
+// ---------- SEED SUBSCRIPTION PLANS ----------
+async function seedPlans() {
+  const plans = await SubscriptionPlan.findAll();
 
-  app.listen(3000, () => {
-    console.log("Server is running on port 3000");
-  });
+  if (plans.length === 0) {
+    await SubscriptionPlan.bulkCreate([
+      { id: 1, name: "Basic", price: 200, duration: "monthly" },
+      { id: 2, name: "Standard", price: 400, duration: "monthly" },
+      { id: 3, name: "Premium", price: 700, duration: "monthly" },
+    ]);
+
+    console.log("✅ Subscription plans seeded");
+  } else {
+    console.log("ℹ️ Subscription plans already exist");
+  }
+}
+
+// ---------- START SERVER ----------
+const startServer = async () => {
+  try {
+    await connectDB();
+    console.log("✅ Database connected");
+
+    await sequelize.sync();
+    console.log("✅ Models synced");
+
+    await seedPlans(); // ⭐ IMPORTANT: seed AFTER sync
+
+    app.listen(3000, () => {
+      console.log("🚀 Server is running on port 3000");
+    });
+  } catch (error) {
+    console.error("❌ Server failed to start:", error);
+  }
 };
 
 startServer();
