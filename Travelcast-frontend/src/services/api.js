@@ -17,18 +17,18 @@ Api.interceptors.request.use((req) => {
   return req;
 });
 
-// ---------- USER ----------
+
 export const createUserApi = (data) =>
   Api.post("/user/register", data);
 
 export const loginUserApi = (data) =>
   Api.post("/user/login", data);
 
-// ---------- SECURITY ----------
+
 export const setupSecurityApi = (data) =>
   Api.post("/security/setup", data);
 
-// ---------- SUBSCRIPTION ----------
+
 export const subscribeUserApi = (data) =>
   Api.post("/subscription/subscribe", data);
 

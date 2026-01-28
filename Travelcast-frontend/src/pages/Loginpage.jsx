@@ -42,7 +42,7 @@ export default function LoginPage() {
             if (token) localStorage.setItem("token", token);
             if (user) localStorage.setItem("user", JSON.stringify(user));
 
-            // ✅ REDIRECT TO SUBSCRIPTION PAGE
+            //  REDIRECT TO SUBSCRIPTION PAGE
             setTimeout(() => {
               navigate("/subscription");
             }, 1000);
@@ -175,6 +175,8 @@ export default function LoginPage() {
               style={styles.input}
               type="email"
               placeholder="Email"
+               autoComplete="off"
+             
               value={email}
               onChange={(e) => {
                 setEmail(e.target.value);
@@ -188,6 +190,7 @@ export default function LoginPage() {
               style={styles.input}
               type={showPassword ? "text" : "password"}
               placeholder="Password"
+               autoComplete="off"
               value={password}
               onChange={(e) => {
                 setPassword(e.target.value);
@@ -203,9 +206,7 @@ export default function LoginPage() {
           </div>
 
           <div style={styles.optionsRow}>
-            <label>
-              <input type="checkbox" /> Remember me
-            </label>
+           
             <a href="#" style={styles.link}>
               Forgot Password?
             </a>
