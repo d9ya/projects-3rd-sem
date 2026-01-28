@@ -45,7 +45,7 @@ export default function SplashScreen() {
     <div style={styles.container}>
       <div style={styles.logoContainer}>
         <img
-          src="logo.png"   // 👈 your logo here
+          src="logo.png"   // logo here
           alt="Travelcast Logo"
           style={styles.logo}
         />

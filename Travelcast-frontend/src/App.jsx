@@ -1,5 +1,7 @@
 import React from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+
+
 import Registerpage from "./pages/Registerpage";
 import LoginPage from "./pages/Loginpage";
 import CreateTripPage from "./pages/CreateTrippage";
@@ -20,6 +22,10 @@ function App() {
        
          <Route path="/subscription" element={<Subscriptionpage/>} />
 
+     
+       
+     
+      
       </Routes>
     </BrowserRouter>
   );
