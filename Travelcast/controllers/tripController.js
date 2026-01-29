@@ -56,16 +56,20 @@ const getAllTrips = async (req, res) => {
 
 // DELETE TRIP
 const deleteTrip = async (req, res) => {
+  console.log("🔥 DELETE HIT:", req.params.id);
+
   try {
     const trip = await Trip.findByPk(req.params.id);
     if (!trip) return res.status(404).json({ message: "Trip not found" });
 
-    await trip.destroy();
+    await trip.destroy({ force: true });
     res.json({ message: "Trip deleted successfully" });
   } catch (err) {
+    console.error("DELETE ERROR:", err);
     res.status(500).json({ message: "Delete failed" });
   }
 };
+
 
 // UPDATE TRIP
 const updateTrip = async (req, res) => {

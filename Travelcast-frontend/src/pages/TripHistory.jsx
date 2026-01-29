@@ -26,21 +26,27 @@ const TripHistory = () => {
   }, []);
 
   /* 🔹 Delete trip */
-  const handleDelete = async (id) => {
-    if (!window.confirm("Delete this trip?")) return;
+const handleDelete = async (id) => {
+  if (!window.confirm("Delete this trip permanently?")) return;
 
-    await fetch(`http://localhost:3000/api/trips/${id}`, {
-      method: "DELETE",
-    });
+  try {
+    const res = await fetch(
+      `http://localhost:3000/api/trips/delete/${id}`,
+      { method: "DELETE" }
+    );
 
-    setTrips(trips.filter((trip) => trip.id !== id));
-  };
+    if (!res.ok) {
+      alert("Delete failed");
+      return;
+    }
 
-  /* 🔹 Edit modal */
-  const openEditModal = (trip) => {
-    setEditTrip({ ...trip });
-    setShowModal(true);
-  }; 
+    setTrips((prev) => prev.filter((trip) => trip.id !== id));
+  } catch (err) {
+    console.error("Delete error:", err);
+    alert("Something went wrong");
+  }
+};
+
 
 const handleUpdate = async () => {
     // 🔹 Frontend date validation
