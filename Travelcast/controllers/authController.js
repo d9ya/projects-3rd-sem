@@ -1,7 +1,7 @@
 const User = require("../models/userModel");
 const bcrypt = require("bcryptjs");
 const crypto = require("crypto");
-const jwt = require("jsonwebtoken"); // <-- Missing import
+const jwt = require("jsonwebtoken"); 
 const sendEmail = require("../utils/sendEmail");
 
 const registerUser = async (req, res) => {
@@ -19,6 +19,8 @@ const registerUser = async (req, res) => {
     if (existingUser) {
       return res.status(400).json({ success: false, message: "User already exists" });
     }
+
+    const hashedPassword = await bcrypt.hash(password, 10); 
 
     const userData = { 
       username, 
