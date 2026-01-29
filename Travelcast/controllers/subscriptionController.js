@@ -19,7 +19,7 @@ const subscribePlan = async (req, res) => {
       });
     }
 
-    // ✅ Check if plan exists
+    //  Check if plan exists
     const plan = await SubscriptionPlan.findByPk(planId);
     if (!plan) {
       return res.status(404).json({
@@ -63,9 +63,7 @@ const subscribePlan = async (req, res) => {
   }
 };
 
-// -------------------------------
-// Get user subscriptions
-// -------------------------------
+
 const getUserSubscriptions = async (req, res) => {
   try {
     const userId = Number(req.params.userId);
