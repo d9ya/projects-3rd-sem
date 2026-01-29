@@ -6,53 +6,24 @@ export default function SplashScreen() {
 
   useEffect(() => {
     const timer = setTimeout(() => {
-      navigate("/Register"); // route to homepage
+      navigate("/Register");
     }, 2000);
 
     return () => clearTimeout(timer);
   }, [navigate]);
 
-  const styles = {
-    container: {
-      height: "100vh",
-      width: "100%",
-      display: "flex",
-      justifyContent: "center",
-      alignItems: "center",
-      backgroundColor: "#ffffff",
-    },
-
-    logoContainer: {
-      textAlign: "center",
-      animation: "fadeIn 1.2s ease-in-out",
-    },
-
-    logo: {
-      width: "180px",
-      height: "auto",
-    },
-
-    text: {
-      marginTop: "20px",
-      fontSize: "22px",
-      fontWeight: "600",
-      color: "#444",
-      letterSpacing: "1px",
-    },
-  };
-
   return (
-    <div style={styles.container}>
-      <div style={styles.logoContainer}>
-        <img
-          src="logo.png"   // logo here
-          alt="Travelcast Logo"
-          style={styles.logo}
-        />
+    <div className="h-screen w-full flex items-center justify-center bg-white">
       
+      <div className="text-center animate-fadeIn">
+        <img
+          src="logo.png"
+          alt="Travelcast Logo"
+          className="w-[180px] mx-auto"
+        />
       </div>
 
-      {/* Inline animation */}
+      {/* Tailwind custom animation */}
       <style>
         {`
           @keyframes fadeIn {
@@ -64,6 +35,10 @@ export default function SplashScreen() {
               opacity: 1;
               transform: scale(1);
             }
+          }
+
+          .animate-fadeIn {
+            animation: fadeIn 1.2s ease-in-out;
           }
         `}
       </style>
