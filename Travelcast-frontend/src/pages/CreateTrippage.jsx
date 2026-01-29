@@ -1,16 +1,16 @@
 import React, { useState, useEffect } from "react";
-import { FiHome, FiPlus, FiList,FiEdit, FiBell,FiSettings,FiLogOut} from "react-icons/fi";
+import { FiHome, FiPlus, FiList, FiEdit, FiBell, FiSettings, FiLogOut } from "react-icons/fi";
 import { useNavigate } from "react-router-dom";
-import {WiDaySunny,WiCloudy,WiCloud,WiRain,WiSnow,} from "react-icons/wi";
+import { WiDaySunny, WiCloudy, WiCloud, WiRain, WiSnow } from "react-icons/wi";
 
 const CreateTrip = () => {
-const navigate = useNavigate();
-const handleLogout = () => {
-  localStorage.clear();
-  sessionStorage.clear();
-  navigate("/login"); // or "/" if that's your login page
-};
+  const navigate = useNavigate();
 
+  const handleLogout = () => {
+    localStorage.clear();
+    sessionStorage.clear();
+    navigate("/login");
+  };
 
   const [trip, setTrip] = useState({
     name: "",
@@ -24,412 +24,119 @@ const handleLogout = () => {
   const [weather, setWeather] = useState([]);
   const [loadingWeather, setLoadingWeather] = useState(false);
 
-  // Map cities to OpenWeatherMap-friendly names or coordinates
   const cityMap = {
     Kathmandu: { q: "Kathmandu,NP" },
     Pokhara: { q: "Pokhara,NP" },
-    Chitwan: { lat: 27.5293, lon: 84.3542 }, // Chitwan coordinates
+    Chitwan: { lat: 27.5293, lon: 84.3542 },
     Mustang: { q: "Mustang,NP" },
   };
 
-  // Automatically fetch weather when destination or dates change
   useEffect(() => {
-    if (trip.destination) {
-      fetchWeather(trip.destination);
-    } else {
-      setWeather([]);
-    }
+    if (trip.destination) fetchWeather(trip.destination);
+    else setWeather([]);
   }, [trip.destination, trip.startDate, trip.endDate]);
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setTrip({ ...trip, [name]: value });
-  };
-
+  const handleChange = (e) => setTrip({ ...trip, [e.target.name]: e.target.value });
   const increase = () => setTrip({ ...trip, travelers: trip.travelers + 1 });
-  const decrease = () =>
-    trip.travelers > 1 && setTrip({ ...trip, travelers: trip.travelers - 1 });
+  const decrease = () => trip.travelers > 1 && setTrip({ ...trip, travelers: trip.travelers - 1 });
 
   const handleSubmit = async () => {
     try {
-      const response = await fetch("http://localhost:3000/api/trips/create", {
+      const res = await fetch("http://localhost:3000/api/trips/create", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(trip),
       });
 
-      const data = await response.json();
+      const data = await res.json();
 
-      if (response.ok) {
+      if (res.ok) {
         alert("Trip saved successfully!");
         setTrip({ name: "", destination: "", startDate: "", endDate: "", travelers: 1, note: "" });
         setWeather([]);
         console.log("Saved trip:", data);
-      } else {
-        alert(data.message || "Something went wrong");
-      }
-    } catch (error) {
-      console.error("Submit error:", error);
+      } else alert(data.message || "Something went wrong");
+    } catch (err) {
+      console.error("Submit error:", err);
       alert("Backend not responding");
     }
   };
 
-  // Fetch 5-day weather forecast
   const fetchWeather = async (city) => {
     if (!city) return;
-
     try {
       setLoadingWeather(true);
-      const apiKey = "4f11ab35f65e0493763249ca4395483f"; // Replace with your API key
+      const apiKey = "4f11ab35f65e0493763249ca4395483f";
       const cityInfo = cityMap[city];
 
-      let url;
-      if (cityInfo.lat && cityInfo.lon) {
-        // Use coordinates if available
-        url = `https://api.openweathermap.org/data/2.5/forecast?lat=${cityInfo.lat}&lon=${cityInfo.lon}&units=metric&appid=${apiKey}`;
-      } else {
-        url = `https://api.openweathermap.org/data/2.5/forecast?q=${cityInfo.q}&units=metric&appid=${apiKey}`;
-      }
+      const url = cityInfo.lat && cityInfo.lon
+        ? `https://api.openweathermap.org/data/2.5/forecast?lat=${cityInfo.lat}&lon=${cityInfo.lon}&units=metric&appid=${apiKey}`
+        : `https://api.openweathermap.org/data/2.5/forecast?q=${cityInfo.q}&units=metric&appid=${apiKey}`;
 
       const res = await fetch(url);
       const data = await res.json();
 
       if (res.ok) {
-        // Filter one forecast per day at 12:00
         const daily = data.list.filter(item => item.dt_txt.includes("12:00:00")).slice(0, 5);
         setWeather(daily);
-      } else {
-        console.error("Weather API error:", data.message);
-        setWeather([]);
-      }
+      } else setWeather([]);
     } catch (err) {
-      console.error("Weather error", err);
+      console.error(err);
       setWeather([]);
     } finally {
       setLoadingWeather(false);
     }
   };
 
-  const goToSettings = () => navigate("/settings");
   const getWeatherIcon = (main) => {
-  switch (main) {
-    case "Clear":
-      return <WiDaySunny size={40} />;
-    case "Clouds":
-      return <WiCloudy size={40} />;
-    case "Rain":
-      return <WiRain size={40} />;
-    case "Snow":
-      return <WiSnow size={40} />;
-    default:
-      return <WiCloud size={40} />;
-  }
-};
-
-
-  const styles = {
-    container: { 
-      display: "flex", 
-      height: "110vh", 
-      background: "#eef2fb", 
-      fontFamily: "Arial, sans-serif" 
-    },
-    sidebar: {
-    width: "260px",
-    background: "#dfe8f9",
-    padding: "30px 20px",
-    display: "flex",
-    flexDirection: "column",
-    justifyContent: "space-between",
-  },
-   logoBox: {
-    textAlign: "center",
-    marginBottom: "35px",
-    },
-    logoImg: {
-      width: "80px",
-      marginBottom: "8px",
-    },
-    menu: {
-      display: "flex",
-      flexDirection: "column",
-      gap: "16px",
-    },
-    menuItem: (active = false) => ({
-      display: "flex",
-      alignItems: "center",
-      gap: "14px",
-      padding: "16px 18px",
-      borderRadius: "18px",
-      background: "#e7effc",
-      border: "none",
-      fontSize: "15px",
-      fontWeight: active ? "700" : "500",
-      cursor: "pointer",
-      boxShadow: "0 8px 18px rgba(0,0,0,0.08)",
-    }),
-    menuItemHover: {
-      background: "#ffffff",
-    },
-
-    logoutBtn: {
-      display: "flex",
-      alignItems: "center",
-      gap: "12px",
-      justifyContent: "center",
-      padding: "16px",
-      borderRadius: "18px",
-      background: "#e7effc",
-      border: "none",
-      fontSize: "15px",
-      fontWeight: "700",
-      cursor: "pointer",
-      boxShadow: "0 8px 18px rgba(0,0,0,0.08)",
-    },
-    content: { 
-      flex: 1, 
-      padding: "35px 50px" 
-    },
-    topBarTitle: { 
-      fontSize: "22px", 
-      fontWeight: "700", 
-      margin: 0 
-    },
-    subtitle: { 
-      color: "#666", 
-      marginBottom: "25px" 
-    },
-    card: { 
-      background: "#fff", 
-      padding: "30px", 
-      paddingBottom: "90px", 
-      borderRadius: "14px", 
-      maxWidth: "1200px", 
-      width: "100%", 
-      margin: "0 auto", 
-      position: "relative", 
-      height: "90vh" 
-    },
-    label: { 
-      fontSize: "14px", 
-      marginBottom: "6px", 
-      display: "block" 
-    },
-    input: { 
-      width: "100%", 
-      padding: "12px", 
-      background: "#f1f1f1", 
-      border: "none", 
-      borderRadius: "8px", 
-      marginBottom: "15px" },
-      row: { display: "flex", 
-      gap: "20px" 
-    },
-    travelerBox: { 
-      flex: 1 
-    },
-    counter: { 
-      display: "flex", 
-      alignItems: "center", 
-      gap: "12px", 
-      background: "#f1f1f1", 
-      padding: "10px", 
-      borderRadius: "8px", 
-      marginTop: "8px" 
-    },
-    counterBtn: { 
-      background: "#ddd", 
-      border: "none", 
-      borderRadius: "6px", 
-      padding: "4px 10px", 
-      cursor: "pointer" 
-    },
-    mapBox: { 
-      marginTop: "20px", 
-      width: "50%" 
-    },
-    map: { 
-      width: "100%", 
-      height: "200px", 
-      border: "none", 
-      borderRadius: "10px" 
-    },
-    saveBtnWrapper: { 
-      position: "absolute", 
-      bottom: "25px", 
-      right: "30px" 
-    },
-    saveBtn: { 
-      background: "#4f5bd5", 
-      color: "#fff", 
-      padding: "14px 36px", 
-      border: "none", 
-      borderRadius: "30px", 
-      fontSize: "16px", 
-      cursor: "pointer" 
-    },
-    mapWeatherRow: { 
-      display: "flex", 
-      gap: "20px", 
-      marginTop: "20px" 
-    },
-    weatherBox: {
-      flex: 1,
-      borderRadius: "16px",
-      padding: "16px",
-      color: "#fff",
-      backgroundImage:"linear-gradient(rgba(0,0,0,0.45), rgba(0,0,0,0.45)), url('weather.png')",
-      backgroundSize: "cover",
-      backgroundPosition: "center",
-      boxShadow: "0 6px 18px rgba(0,0,0,0.25)",
-    },
-
-    forecastItem: {
-      minWidth: "110px",
-      background: "rgba(255,255,255,0.25)",
-      backdropFilter: "blur(8px)",
-      borderRadius: "14px",
-      padding: "10px",
-      textAlign: "center",
-      boxShadow: "0 4px 12px rgba(0,0,0,0.25)",
-      fontSize: "13px",
-    },
-      };
-  
+    switch (main) {
+      case "Clear": return <WiDaySunny size={40} />;
+      case "Clouds": return <WiCloudy size={40} />;
+      case "Rain": return <WiRain size={40} />;
+      case "Snow": return <WiSnow size={40} />;
+      default: return <WiCloud size={40} />;
+    }
+  };
 
   return (
-    <div style={styles.container}>
+    <div className="flex h-[110vh] bg-blue-50 font-sans">
       {/* Sidebar */}
-    <aside style={styles.sidebar}>
-      <div>
-        {/* Logo - top middle */}
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "center",
-            marginBottom: "35px",
-          }}
-        >
-          <div style={{ textAlign: "center" }}>
-            <img src="/logo.png" alt="Travelcast" style={styles.logoImg} />
-            <div style={{ fontWeight: 600 }}>Travelcast</div>
+      <aside className="w-64 bg-blue-100 p-8 flex flex-col justify-between">
+        <div>
+          <div className="flex justify-center mb-8">
+            <img src="/logo.png" alt="Logo" className="w-20 mb-2 mx-auto" />
+          </div>
+
+          <div className="flex flex-col gap-4">
+            <button className="flex items-center gap-3 px-4 py-4 rounded-2xl bg-blue-200 font-medium shadow-md hover:bg-white" onClick={() => navigate("/userdashboard")}><FiHome /> Home</button>
+            <button className="flex items-center gap-3 px-4 py-4 rounded-2xl bg-blue-300 font-semibold shadow-md hover:bg-white" onClick={() => navigate("/createTrip")}><FiPlus /> Create New Trip</button>
+            <button className="flex items-center gap-3 px-4 py-4 rounded-2xl bg-blue-200 font-medium shadow-md hover:bg-white" onClick={() => navigate("/packing")}><FiList /> Packing List</button>
+            <button className="flex items-center gap-3 px-4 py-4 rounded-2xl bg-blue-200 font-medium shadow-md hover:bg-white" onClick={() => navigate("/tripHistory")}><FiEdit /> Trip History</button>
+            <button className="flex items-center gap-3 px-4 py-4 rounded-2xl bg-blue-200 font-medium shadow-md hover:bg-white" onClick={() => navigate("/subscription")}><FiBell /> Subscription</button>
+            <button className="flex items-center gap-3 px-4 py-4 rounded-2xl bg-blue-200 font-medium shadow-md hover:bg-white" onClick={() => navigate("/settings")}><FiSettings /> Settings</button>
           </div>
         </div>
 
-        {/* Menu */}
-        <div style={styles.menu}>
-          <button
-            style={styles.menuItem(false)}
-            onClick={() => navigate("/userdashboard")}
-            onMouseEnter={(e) =>
-              Object.assign(e.currentTarget.style, styles.menuItemHover)
-            }
-            onMouseLeave={(e) =>
-              Object.assign(e.currentTarget.style, styles.menuItem(false))
-            }
-          >
-            <FiHome /> Home
-          </button>
+        <button onClick={handleLogout} className="flex items-center gap-3 justify-center px-4 py-4 rounded-2xl bg-blue-200 font-semibold shadow-md hover:bg-white"><FiLogOut /> Logout</button>
+      </aside>
 
-          <button
-            style={styles.menuItem(true)}
-            onClick={() => navigate("/createTrip")}
-            onMouseEnter={(e) =>
-              Object.assign(e.currentTarget.style, styles.menuItemHover)
-            }
-            onMouseLeave={(e) =>
-              Object.assign(e.currentTarget.style, styles.menuItem(true))
-            }
-          >
-            <FiPlus /> Create New Trip
-          </button>
-
-          <button
-            style={styles.menuItem(false)}
-            onClick={() => navigate("/packing")}
-            onMouseEnter={(e) =>
-              Object.assign(e.currentTarget.style, styles.menuItemHover)
-            }
-            onMouseLeave={(e) =>
-              Object.assign(e.currentTarget.style, styles.menuItem(false))
-            }
-          >
-            <FiList /> Packing List
-          </button>
-
-          <button
-            style={styles.menuItem(false)}
-            onClick={() => navigate("/tripHistory")}
-            onMouseEnter={(e) =>
-              Object.assign(e.currentTarget.style, styles.menuItemHover)
-            }
-            onMouseLeave={(e) =>
-              Object.assign(e.currentTarget.style, styles.menuItem(false))
-            }
-          >
-            <FiEdit /> Trip History
-          </button>
-
-          <button
-            style={styles.menuItem(false)}
-            onClick={() => navigate("/subscription")}
-            onMouseEnter={(e) =>
-              Object.assign(e.currentTarget.style, styles.menuItemHover)
-            }
-            onMouseLeave={(e) =>
-              Object.assign(e.currentTarget.style, styles.menuItem(false))
-            }
-          >
-            <FiBell /> Subscription
-          </button>
-
-          <button
-            style={styles.menuItem(false)}
-            onClick={() => navigate("/settings")}
-            onMouseEnter={(e) =>
-              Object.assign(e.currentTarget.style, styles.menuItemHover)
-            }
-            onMouseLeave={(e) =>
-              Object.assign(e.currentTarget.style, styles.menuItem(false))
-            }
-          >
-            <FiSettings /> Settings
-          </button>
-        </div>
-      </div>
-
-      {/* Logout */}
-      <button
-        style={styles.logoutBtn}
-        onClick={handleLogout}
-        onMouseEnter={(e) =>
-          Object.assign(e.currentTarget.style, styles.menuItemHover)
-        }
-        onMouseLeave={(e) =>
-          Object.assign(e.currentTarget.style, styles.logoutBtn)
-        }
-      >
-        <FiLogOut /> Logout
-      </button>
-    </aside>
-
-      {/* Main */}
-      <main style={styles.content}>
-        <div style={{ maxWidth: styles.card.maxWidth, margin: "0 auto 20px auto" }}>
-          <h1 style={styles.topBarTitle}>Create Your Trip</h1>
-          <p style={styles.subtitle}>Plan smarter with weather insights</p>
+      {/* Main Content */}
+      <main className="flex-1 p-9 overflow-y-auto">
+        <div className="max-w-[1200px] mx-auto mb-5">
+          <h1 className="text-2xl font-bold mb-2">Create Your Trip</h1>
+          <p className="text-gray-600 mb-6">Plan smarter with weather insights</p>
         </div>
 
-        <div style={styles.card}>
-          <h3>Trip Essentials</h3>
+        <div className="bg-white p-8 rounded-xl max-w-[1200px] w-full mx-auto relative h-[90vh]">
+          <h3 className="text-lg font-semibold mb-4">Trip Essentials</h3>
 
-          <label style={styles.label}>Name</label>
-          <input style={styles.input} name="name" value={trip.name} onChange={handleChange} />
+          <label className="block text-sm mb-2">Name</label>
+          <input name="name" value={trip.name} onChange={handleChange} className="w-full p-3 mb-4 rounded bg-gray-100 border-none" />
 
-          <div style={styles.row}>
-            <div style={{ flex: 1 }}>
-              <label style={styles.label}>Destination</label>
-              <select style={styles.input} name="destination" value={trip.destination} onChange={handleChange}>
+          <div className="flex gap-5 mb-4">
+            <div className="flex-1">
+              <label className="block text-sm mb-2">Destination</label>
+              <select name="destination" value={trip.destination} onChange={handleChange} className="w-full p-3 mb-4 rounded bg-gray-100 border-none">
                 <option value="">Select</option>
                 <option>Kathmandu</option>
                 <option>Pokhara</option>
@@ -438,61 +145,63 @@ const handleLogout = () => {
               </select>
             </div>
 
-            <div style={{ flex: 1 }}>
-              <label style={styles.label}>Start Date</label>
-              <input style={styles.input} type="date" name="startDate" value={trip.startDate} onChange={handleChange} />
+            <div className="flex-1">
+              <label className="block text-sm mb-2">Start Date</label>
+              <input type="date" name="startDate" value={trip.startDate} onChange={handleChange} className="w-full p-3 mb-4 rounded bg-gray-100 border-none" />
             </div>
 
-            <div style={{ flex: 1 }}>
-              <label style={styles.label}>End Date</label>
-              <input style={styles.input} type="date" name="endDate" value={trip.endDate} onChange={handleChange} />
+            <div className="flex-1">
+              <label className="block text-sm mb-2">End Date</label>
+              <input type="date" name="endDate" value={trip.endDate} onChange={handleChange} className="w-full p-3 mb-4 rounded bg-gray-100 border-none" />
             </div>
           </div>
 
-          <div style={styles.row}>
-            <div style={styles.travelerBox}>
-              <label style={styles.label}>Number of travelers</label>
-              <div style={styles.counter}>
-                <button style={styles.counterBtn} onClick={decrease}>-</button>
+          <div className="flex gap-5 mb-4">
+            <div className="flex-1">
+              <label className="block text-sm mb-2">Number of travelers</label>
+              <div className="flex items-center gap-3 bg-gray-100 p-2 rounded">
+                <button onClick={decrease} className="bg-gray-300 px-3 py-1 rounded">-</button>
                 <span>{trip.travelers}</span>
-                <button style={styles.counterBtn} onClick={increase}>+</button>
+                <button onClick={increase} className="bg-gray-300 px-3 py-1 rounded">+</button>
               </div>
             </div>
 
-            <div style={{ flex: 1 }}>
-              <label style={styles.label}>Note</label>
-              <input style={styles.input} name="note" value={trip.note} onChange={handleChange} />
+            <div className="flex-1">
+              <label className="block text-sm mb-2">Note</label>
+              <input name="note" value={trip.note} onChange={handleChange} className="w-full p-3 mb-4 rounded bg-gray-100 border-none" />
             </div>
           </div>
 
-          <div style={styles.mapWeatherRow}>
+          <div className="flex gap-5 mt-6">
             {/* Map */}
-            <div style={styles.mapBox}>
-              <p>Google Map</p>
+            <div className="flex-1">
+              <p className="mb-2 font-semibold">Google Map</p>
               <iframe
                 title="map"
-                style={styles.map}
                 src={`https://www.google.com/maps?q=${encodeURIComponent(trip.destination || "Kathmandu")}&output=embed`}
                 loading="lazy"
                 referrerPolicy="no-referrer-when-downgrade"
+                className="w-full h-52 rounded-lg border-none"
               />
             </div>
 
             {/* Weather */}
-            <div style={styles.weatherBox}>
-              <p>Weather Forecast</p>
+            <div className="flex-1 p-4 rounded-2xl shadow-lg">
+              <p className="font-semibold mb-2">Weather Forecast</p>
               {loadingWeather ? (
                 <p>Loading...</p>
               ) : weather.length > 0 ? (
-                <div style={{ display: "flex", gap: "12px", overflowX: "auto" }}>
+                <div className="flex gap-3 overflow-x-auto">
                   {weather.map((day, i) => (
-                    <div key={i} style={styles.forecastItem}>
-                      <p>{day.dt_txt.split(" ")[0]}</p>
-                      <div style={{ fontSize: "42px", margin: "6px 0" }}>
-                          {getWeatherIcon(day.weather[0].main)}
-                        </div>
-                      <p>{day.main.temp} °C</p>
-                      <p>{day.weather[0].description}</p>
+                    <div 
+                      key={i} 
+                      className="min-w-[110px] rounded-lg p-3 text-center shadow-md"
+                      style={{ backgroundColor: "#B9EBFF", color: "#000" }}
+                    >
+                      <p className="mb-1 font-semibold">{day.dt_txt.split(" ")[0]}</p>
+                      <div className="text-4xl mb-1">{getWeatherIcon(day.weather[0].main)}</div>
+                      <p className="font-medium">{day.main.temp} °C</p>
+                      <p className="text-sm capitalize">{day.weather[0].description}</p>
                     </div>
                   ))}
                 </div>
@@ -502,8 +211,8 @@ const handleLogout = () => {
             </div>
           </div>
 
-          <div style={styles.saveBtnWrapper}>
-            <button style={styles.saveBtn} onClick={handleSubmit}>Save Trip</button>
+          <div className="absolute bottom-6 right-6">
+            <button onClick={handleSubmit} className="bg-blue-700 text-white px-9 py-4 rounded-full text-lg hover:bg-blue-800 transition-colors">Save Trip</button>
           </div>
         </div>
       </main>
