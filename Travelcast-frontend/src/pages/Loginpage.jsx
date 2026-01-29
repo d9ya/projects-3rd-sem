@@ -42,7 +42,13 @@ export default function LoginPage() {
               localStorage.setItem("user", JSON.stringify(res.data.user));
             }
 
+<<<<<<< HEAD
             setTimeout(() => navigate("/Subscription"), 1000);
+=======
+            // ✅ NAVIGATE TO SUBSCRIPTION PAGE
+            setTimeout(() => navigate("/userdashboard"), 1000);
+
+>>>>>>> b239e37442efc7404c51db29c98d2437dd5b5cc0
             return res?.data?.message || "Login successful!";
           },
           error: (err) =>

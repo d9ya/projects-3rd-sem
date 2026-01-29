@@ -7,7 +7,7 @@ const Api = axios.create({
   },
 });
 
-// Attach token automatically
+
 Api.interceptors.request.use((req) => {
   const token = localStorage.getItem("token");
   if (token) {
@@ -16,13 +16,40 @@ Api.interceptors.request.use((req) => {
   return req;
 });
 
+<<<<<<< HEAD
 // Auth
 export const createUserApi = (data) => Api.post("/api/user/register", data);
 export const loginUserApi = (data) => Api.post("/api/user/login", data);
+=======
 
+export const createUserApi = (data) =>
+  axios.post("http://localhost:3000/api/user/register", data, {
+    headers: { "Content-Type": "application/json" },
+  });
+export const loginUserApi = (data) => Api.post("/api/user/loginUser", data);
+>>>>>>> b239e37442efc7404c51db29c98d2437dd5b5cc0
 
 // Subscription
-export const subscribeUserApi = (data) =>
-  Api.post("/api/subscription/subscribe", data);
+export const subscribeUserApi = (data) => Api.post("/api/user/subscribe", data);
+
+export const getPackingApi = () =>
+  Api.get("/api/packing");
+
+export const addPackingItemApi = (data) =>
+  Api.post("/api/packing", data);
+
+export const updatePackingItemApi = (itemId, data) =>
+  Api.put(`/api/packing/${itemId}`, data);
+
+export const deletePackingItemsApi = (itemIds) =>
+  Api.delete("/api/packing", {
+    data: { itemIds }
+  });
+
+ 
+export const savePackingNotesApi = (data) =>
+  Api.post("/api/packing/saveNotes", data);
 
 
+export const saveSecurityAnswersApi = (data) =>
+  Api.post("/api/security/setup", data);

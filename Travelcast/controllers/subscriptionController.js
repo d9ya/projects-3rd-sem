@@ -1,9 +1,7 @@
 const UserSubscription = require("../models/userSubscription");
 const SubscriptionPlan = require("../models/subscriptionModel");
 
-// -------------------------------
-// Subscribe user to a plan
-// -------------------------------
+=
 const subscribePlan = async (req, res) => {
   try {
     let { userId, planId } = req.body;
