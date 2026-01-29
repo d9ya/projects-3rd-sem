@@ -28,11 +28,9 @@ export default function LoginPage() {
     setError("");
     setLoading(true);
 
-    const data = { email, password };
-
     try {
       await toast.promise(
-        loginUserApi(data),
+        loginUserApi({ email, password }),
         {
           loading: "Logging in...",
           success: (res) => {
@@ -41,15 +39,10 @@ export default function LoginPage() {
             }
 
             if (res?.data?.user) {
-              localStorage.setItem(
-                "user",
-                JSON.stringify(res.data.user)
-              );
+              localStorage.setItem("user", JSON.stringify(res.data.user));
             }
 
-            //  NAVIGATE TO SUBSCRIPTION PAGE
             setTimeout(() => navigate("/Subscription"), 1000);
-
             return res?.data?.message || "Login successful!";
           },
           error: (err) =>
@@ -64,183 +57,89 @@ export default function LoginPage() {
     }
   };
 
-  const styles = {
-    container: {
-      height: "100vh",
-      width: "100%",
-      display: "flex",
-      justifyContent: "center",
-      alignItems: "center",
-      background: "url('backgroundimg.png') no-repeat center/cover",
-      fontFamily: "Arial, sans-serif",
-      position: "relative",
-    },
-    card: {
-      width: "500px",
-      padding: "40px",
-      borderRadius: "60px",
-      background: "rgba(255, 255, 255, 0.25)",
-      backdropFilter: "blur(12px)",
-      boxShadow: "0 8px 32px rgba(0,0,0,0.25)",
-      textAlign: "center",
-    },
-    logo: {
-      position: "absolute",
-      top: "30px",
-      left: "30px",
-      width: "130px",
-      opacity: 0.9,
-    },
-    title: {
-      fontSize: "28px",
-      fontWeight: "700",
-      marginBottom: "20px",
-      color: "#333",
-    },
-    subtitle: {
-      fontSize: "13px",
-      color: "#302f2f",
-      marginBottom: "25px",
-    },
-    inputGroup: {
-      marginBottom: "18px",
-      position: "relative",
-    },
-    input: {
-      width: "80%",
-      padding: "14px",
-      borderRadius: "30px",
-      border: "none",
-      outline: "none",
-      fontSize: "16px",
-      background: "rgba(255, 255, 255, 0.308)",
-    },
-    passwordIcon: {
-      position: "absolute",
-      right: "45px",
-      top: "50%",
-      transform: "translateY(-50%)",
-      fontSize: "20px",
-      cursor: "pointer",
-      color: "#333",
-    },
-    optionsRow: {
-      display: "flex",
-      justifyContent: "space-between",
-      width: "80%",
-      margin: "5px auto 15px auto",
-      fontSize: "14px",
-    },
-    button: {
-      width: "80%",
-      padding: "15px",
-      marginTop: "10px",
-      border: "none",
-      borderRadius: "30px",
-      backgroundColor: "#3043a1",
-      color: "white",
-      fontSize: "22px",
-      fontWeight: "700",
-      cursor: "pointer",
-      opacity: loading ? 0.7 : 1,
-    },
-    link: {
-      color: "#3043a1",
-      textDecoration: "none",
-      fontWeight: "bold",
-    },
-    loginText: {
-      marginTop: "15px",
-      fontSize: "14px",
-    },
-  };
-
   return (
-    <div style={styles.container}>
-      <img src="logo.png" alt="Logo" style={styles.logo} />
+    <div className="min-h-screen w-full flex items-center justify-center bg-[url('/backgroundimg.png')] bg-cover bg-center font-sans relative">
+      
+      {/* Logo */}
+      <img
+        src="logo.png"
+        alt="Logo"
+        className="absolute top-8 left-8 w-32 opacity-90"
+      />
 
-      <div style={styles.card}>
-        <h2 style={styles.title}>Login</h2>
-        <div style={styles.subtitle}>
+      {/* Card */}
+      <div className="w-[500px] px-10 py-10 rounded-[60px] bg-white/25 backdrop-blur-xl shadow-2xl text-center">
+        
+        <h2 className="text-2xl font-bold text-gray-800 mb-2">Login</h2>
+        <p className="text-sm text-gray-700 mb-6">
           Welcome to Travelcast
-        </div>
+        </p>
 
         {error && (
-          <div
-            style={{
-              color: "red",
-              fontSize: "14px",
-              marginBottom: "10px",
+          <p className="text-red-500 text-sm mb-3">{error}</p>
+        )}
+
+        <form onSubmit={handleLogin} className="space-y-4">
+          
+          {/* Email */}
+          <input
+            type="email"
+            name="login_email"
+            placeholder="Email"
+            autoComplete="new-email"
+            value={email}
+            onChange={(e) => {
+              setEmail(e.target.value);
+              setError("");
             }}
-          >
-            {error}
-          </div>
-        )}
+            className="w-4/5 px-4 py-3 rounded-full bg-white/30 outline-none text-base"
+          />
 
-        {error && (
-          <div style={{ color: "red", fontSize: "14px", marginBottom: "10px" }}>
-            {error}
-          </div>
-        )}
-
-        <form onSubmit={handleLogin}>
-          <div style={styles.inputGroup}>
+          {/* Password */}
+          <div className="relative flex justify-center">
             <input
-              style={styles.input}
-              type="email"
-              placeholder="Email"
-               autoComplete="off"
-             
-              value={email}
-              onChange={(e) => {
-                setEmail(e.target.value);
-                setError("");
-              }}
-            />
-          </div>
-
-          <div style={styles.inputGroup}>
-            <input
-              style={styles.input}
               type={showPassword ? "text" : "password"}
+              name="login_password"
               placeholder="Password"
-               autoComplete="off"
+              autoComplete="new-password"
               value={password}
               onChange={(e) => {
                 setPassword(e.target.value);
                 setError("");
               }}
+              className="w-4/5 px-4 py-3 rounded-full bg-white/30 outline-none text-base"
             />
+
             <span
-              style={styles.passwordIcon}
-              onClick={() =>
-                setShowPassword(!showPassword)
-              }
+              onClick={() => setShowPassword(!showPassword)}
+              className="absolute right-[70px] top-1/2 -translate-y-1/2 cursor-pointer text-gray-700 text-lg"
             >
               {showPassword ? <FaEyeSlash /> : <FaEye />}
             </span>
           </div>
 
-          <div style={styles.optionsRow}>
-           
-            <a href="#" style={styles.link}>
+          {/* Forgot Password */}
+          <div className="w-4/5 mx-auto text-center text-sm">
+            <a href="#" className="text-blue-700 font-semibold">
               Forgot Password?
             </a>
           </div>
 
+          {/* Button */}
           <button
             type="submit"
-            style={styles.button}
             disabled={loading}
+            className="w-4/5 py-3 rounded-full bg-[#3043a1] text-white text-xl font-bold mt-2 disabled:opacity-70"
           >
             {loading ? "Logging in..." : "Login"}
           </button>
         </form>
 
-        <p style={styles.loginText}>
+        {/* Signup */}
+        <p className="text-sm mt-4">
           Don&apos;t have an account?{" "}
-          <Link to="/register" style={styles.link}>
-            <u>Sign up</u>
+          <Link to="/register" className="text-blue-700 font-bold underline">
+            Sign up
           </Link>
         </p>
       </div>
