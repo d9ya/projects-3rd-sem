@@ -1,14 +1,7 @@
 import React, { useState, useEffect } from "react";
-import { FiSettings, FiLogOut } from "react-icons/fi";
+import { FiHome, FiPlus, FiList,FiEdit, FiBell,FiSettings,FiLogOut} from "react-icons/fi";
 import { useNavigate } from "react-router-dom";
-import {
-  WiDaySunny,
-  WiCloudy,
-  WiCloud,
-  WiRain,
-  WiSnow,
-} from "react-icons/wi";
-
+import {WiDaySunny,WiCloudy,WiCloud,WiRain,WiSnow,} from "react-icons/wi";
 
 const CreateTrip = () => {
 const navigate = useNavigate();
@@ -141,55 +134,57 @@ const handleLogout = () => {
       background: "#eef2fb", 
       fontFamily: "Arial, sans-serif" 
     },
-    sidebar: { 
-      width: "230px", 
-      background: "#c9d6f1", 
-      padding: "25px 20px", 
-      display: "flex", 
-      flexDirection: "column", 
-      justifyContent: "space-between", 
-      height: "110vh" 
+    sidebar: {
+    width: "260px",
+    background: "#dfe8f9",
+    padding: "30px 20px",
+    display: "flex",
+    flexDirection: "column",
+    justifyContent: "space-between",
+  },
+   logoBox: {
+    textAlign: "center",
+    marginBottom: "35px",
     },
-    logoImg: { 
-      width: "120px", 
-      marginTop: "15px", 
-      marginLeft: "20px" 
+    logoImg: {
+      width: "80px",
+      marginBottom: "8px",
     },
-    menu: { 
-      marginTop: "40px", 
-      display: "flex", 
-      flexDirection: "column", 
-      gap: "14px" 
+    menu: {
+      display: "flex",
+      flexDirection: "column",
+      gap: "16px",
     },
-    menuBtn: { 
-      background: "#c9d6f1", 
-      border: "none", 
-      fontSize: "14px", 
-      cursor: "pointer", 
-      display: "flex", 
-      alignItems: "center", 
-      gap: "10px", 
-      padding: "12px 16px", 
-      borderRadius: "12px", 
-      boxShadow: "0 4px 12px rgba(0,0,0,0.12)", 
-      transition: "all 0.3s ease" 
+    menuItem: (active = false) => ({
+      display: "flex",
+      alignItems: "center",
+      gap: "14px",
+      padding: "16px 18px",
+      borderRadius: "18px",
+      background: "#e7effc",
+      border: "none",
+      fontSize: "15px",
+      fontWeight: active ? "700" : "500",
+      cursor: "pointer",
+      boxShadow: "0 8px 18px rgba(0,0,0,0.08)",
+    }),
+    menuItemHover: {
+      background: "#ffffff",
     },
-    menuBtnHover: { 
-      background: "#ffffff", 
-      boxShadow: "0 6px 18px rgba(0,0,0,0.16)" 
-    },
-    logoutBtn: { 
-      background: "#4f5bd5", 
-      color: "#fff", 
-      border: "none", 
-      borderRadius: "22px", 
-      padding: "12px", 
-      cursor: "pointer", 
-      fontSize: "14px", 
-      display: "flex", 
-      alignItems: "center", 
-      justifyContent: "center", 
-      gap: "8px" 
+
+    logoutBtn: {
+      display: "flex",
+      alignItems: "center",
+      gap: "12px",
+      justifyContent: "center",
+      padding: "16px",
+      borderRadius: "18px",
+      background: "#e7effc",
+      border: "none",
+      fontSize: "15px",
+      fontWeight: "700",
+      cursor: "pointer",
+      boxShadow: "0 8px 18px rgba(0,0,0,0.08)",
     },
     content: { 
       flex: 1, 
@@ -305,24 +300,118 @@ const handleLogout = () => {
   return (
     <div style={styles.container}>
       {/* Sidebar */}
-      <aside style={styles.sidebar}>
-        <div>
-          <img src="/logo.png" alt="logo" style={styles.logoImg} />
-          <div style={styles.menu}>
-            <button
-              style={styles.menuBtn}
-              onClick={goToSettings}
-              onMouseEnter={(e) => Object.assign(e.currentTarget.style, styles.menuBtnHover)}
-              onMouseLeave={(e) => Object.assign(e.currentTarget.style, styles.menuBtn)}
-            >
-              <FiSettings /> Settings
-            </button>
+    <aside style={styles.sidebar}>
+      <div>
+        {/* Logo - top middle */}
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "center",
+            marginBottom: "35px",
+          }}
+        >
+          <div style={{ textAlign: "center" }}>
+            <img src="/logo.png" alt="Travelcast" style={styles.logoImg} />
+            <div style={{ fontWeight: 600 }}>Travelcast</div>
           </div>
         </div>
-        <button style={styles.logoutBtn} onClick={handleLogout}>
-            <FiLogOut /> Logout
+
+        {/* Menu */}
+        <div style={styles.menu}>
+          <button
+            style={styles.menuItem(false)}
+            onClick={() => navigate("/userdashboard")}
+            onMouseEnter={(e) =>
+              Object.assign(e.currentTarget.style, styles.menuItemHover)
+            }
+            onMouseLeave={(e) =>
+              Object.assign(e.currentTarget.style, styles.menuItem(false))
+            }
+          >
+            <FiHome /> Home
           </button>
-      </aside>
+
+          <button
+            style={styles.menuItem(true)}
+            onClick={() => navigate("/createTrip")}
+            onMouseEnter={(e) =>
+              Object.assign(e.currentTarget.style, styles.menuItemHover)
+            }
+            onMouseLeave={(e) =>
+              Object.assign(e.currentTarget.style, styles.menuItem(true))
+            }
+          >
+            <FiPlus /> Create New Trip
+          </button>
+
+          <button
+            style={styles.menuItem(false)}
+            onClick={() => navigate("/packing")}
+            onMouseEnter={(e) =>
+              Object.assign(e.currentTarget.style, styles.menuItemHover)
+            }
+            onMouseLeave={(e) =>
+              Object.assign(e.currentTarget.style, styles.menuItem(false))
+            }
+          >
+            <FiList /> Packing List
+          </button>
+
+          <button
+            style={styles.menuItem(false)}
+            onClick={() => navigate("/tripHistory")}
+            onMouseEnter={(e) =>
+              Object.assign(e.currentTarget.style, styles.menuItemHover)
+            }
+            onMouseLeave={(e) =>
+              Object.assign(e.currentTarget.style, styles.menuItem(false))
+            }
+          >
+            <FiEdit /> Trip History
+          </button>
+
+          <button
+            style={styles.menuItem(false)}
+            onClick={() => navigate("/subscription")}
+            onMouseEnter={(e) =>
+              Object.assign(e.currentTarget.style, styles.menuItemHover)
+            }
+            onMouseLeave={(e) =>
+              Object.assign(e.currentTarget.style, styles.menuItem(false))
+            }
+          >
+            <FiBell /> Subscription
+          </button>
+
+          <button
+            style={styles.menuItem(false)}
+            onClick={() => navigate("/settings")}
+            onMouseEnter={(e) =>
+              Object.assign(e.currentTarget.style, styles.menuItemHover)
+            }
+            onMouseLeave={(e) =>
+              Object.assign(e.currentTarget.style, styles.menuItem(false))
+            }
+          >
+            <FiSettings /> Settings
+          </button>
+        </div>
+      </div>
+
+      {/* Logout */}
+      <button
+        style={styles.logoutBtn}
+        onClick={handleLogout}
+        onMouseEnter={(e) =>
+          Object.assign(e.currentTarget.style, styles.menuItemHover)
+        }
+        onMouseLeave={(e) =>
+          Object.assign(e.currentTarget.style, styles.logoutBtn)
+        }
+      >
+        <FiLogOut /> Logout
+      </button>
+    </aside>
 
       {/* Main */}
       <main style={styles.content}>
