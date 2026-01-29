@@ -15,54 +15,47 @@ export default function Registerpage() {
   const navigate = useNavigate();
 
   const handleRegistration = async (e) => {
-    e.preventDefault();
-    if (loading) return;
+  e.preventDefault();
+  if (loading) return;
 
-    if (username.trim().length < 2) {
-      return setError("Username must be at least 2 characters.");
-    }
-    if (!email.includes("@")) {
-      return setError("Please enter a valid email.");
-    }
-    if (password.length < 6) {
-      return setError("Password must be at least 6 characters.");
-    }
-
-    setError("");
-    setLoading(true);
-
-    const data = { username, email, password, role: "user" }; // ✅ include role
-
-    try {
-      const res = await toast.promise(
-        createUserApi(data),
-        {
-          loading: "Creating account...",
-          // Inside Registerpage.jsx -> handleRegistration
-success: (res) => {
-  // ✅ CHANGE THIS LINE: access .user.id instead of .userId
-  const newUserId = res?.data?.user?.id; 
-
-  if (newUserId) {
-    localStorage.setItem("newUserId", newUserId);
-    console.log("Saved User ID:", newUserId); // Good for debugging
-  } else {
-    console.error("User ID not found in response:", res.data);
+  if (username.trim().length < 2) {
+    return setError("Username must be at least 2 characters.");
+  }
+  if (!email.includes("@")) {
+    return setError("Please enter a valid email.");
+  }
+  if (password.length < 6) {
+    return setError("Password must be at least 6 characters.");
   }
 
-  navigate("/security");
-  return res?.data?.message || "Account created successfully!";
-},
-          error: (err) =>
-            err?.response?.data?.message || "Registration failed",
-        }
-      );
-    } catch (err) {
-      console.error(err);
-    } finally {
-      setLoading(false);
-    }
-  };
+  setError("");
+  setLoading(true);
+
+  // ✅ Use 'username' instead of 'name'
+  const data = { username, email, password };
+
+  try {
+    const res = await toast.promise(
+      createUserApi(data),
+      {
+        loading: "Creating account...",
+        success: (res) => {
+          const newUserId = res?.data?.user?.id;
+          if (newUserId) {
+            localStorage.setItem("newUserId", newUserId);
+          }
+          navigate("/security");
+          return res?.data?.message || "Account created successfully!";
+        },
+        error: (err) => err?.response?.data?.message || "Registration failed",
+      }
+    );
+  } catch (err) {
+    console.error("Registration error:", err);
+  } finally {
+    setLoading(false);
+  }
+};
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-cover bg-center relative" style={{ backgroundImage: "url('backgroundimg.png')" }}>

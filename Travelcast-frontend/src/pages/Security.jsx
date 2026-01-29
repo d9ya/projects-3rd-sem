@@ -3,19 +3,27 @@ import { useNavigate } from "react-router-dom";
 import { saveSecurityAnswersApi } from "../services/api.js";
 
 function Security() {
-  const navigate = useNavigate();
+
   const [answers, setAnswers] = useState({
+
     q1: "",
+
     q2: "",
+
     q3: "",
     q4: "",
   });
 
   const handleChange = (e) => {
+
     setAnswers({
+
       ...answers,
+
       [e.target.name]: e.target.value,
+
     });
+
   };
 
   const handleSave = async () => {
@@ -31,9 +39,11 @@ function Security() {
       return;
     }
 
-    try {
-      const res = await saveSecurityAnswersApi({
-        userId,
+  try {
+    const res = await axios.post(
+      "http://localhost:3000/api/security/setup",
+      {
+        email,
         question1: "What is your favourite food?",
         answer1: answers.q1,
         question2: "What is your favourite place to visit?",
@@ -57,6 +67,7 @@ function Security() {
     }
   };
 
+ 
   return (
     <div
       className="min-h-screen p-10 flex flex-col items-end justify-start font-sans relative bg-cover bg-center bg-no-repeat bg-fixed"
@@ -80,9 +91,13 @@ function Security() {
         </label>
         <input
           type="text"
+
           name="q1"
+
           value={answers.q1}
+
           onChange={handleChange}
+
           placeholder="Enter answer"
           className="mt-1 p-2.5 rounded-md border-2 border-white bg-transparent text-black outline-none text-sm focus:border-sky-400 focus:ring-2 focus:ring-sky-400/40 transition"
         />
@@ -92,9 +107,13 @@ function Security() {
         </label>
         <input
           type="text"
+
           name="q2"
+
           value={answers.q2}
+
           onChange={handleChange}
+
           placeholder="Enter answer"
           className="mt-1 p-2.5 rounded-md border-2 border-white bg-transparent text-black outline-none text-sm focus:border-sky-400 focus:ring-2 focus:ring-sky-400/40 transition"
         />
@@ -104,9 +123,13 @@ function Security() {
         </label>
         <input
           type="text"
+
           name="q3"
+
           value={answers.q3}
+
           onChange={handleChange}
+
           placeholder="Enter answer"
           className="mt-1 p-2.5 rounded-md border-2 border-white bg-transparent text-black outline-none text-sm focus:border-sky-400 focus:ring-2 focus:ring-sky-400/40 transition"
         />
@@ -116,9 +139,13 @@ function Security() {
         </label>
         <input
           type="text"
+
           name="q4"
+
           value={answers.q4}
+
           onChange={handleChange}
+
           placeholder="Enter answer"
           className="mt-1 p-2.5 rounded-md border-2 border-white bg-transparent text-black outline-none text-sm focus:border-sky-400 focus:ring-2 focus:ring-sky-400/40 transition"
         />
@@ -132,6 +159,8 @@ function Security() {
       </div>
     </div>
   );
+
 }
 
 export default Security;
+ 

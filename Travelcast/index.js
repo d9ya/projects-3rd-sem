@@ -1,40 +1,49 @@
+require('dotenv').config();
 const express = require("express");
-const app = express();
+const cors = require('cors');
 
-const userRoutes = require("./routes/userRoutes");
+// Routes
+const userRoutes = require('./routes/settingRoutes');
+const authRoutes = require('./routes/authRoutes');
 const tripRoutes = require("./routes/tripRoutes");
-const packingRoutes = require("./routes/packingRoutes");
-const securityRoute = require("./routes/securityRoutes");
+const securityRoutes = require("./routes/securityRoutes");
 
-const { connectDB, sequelize } = require("./database/database");
+const { connectDB, sequelize } = require('./database/database');
 
-const cors = require("cors");
+const app = express();
+const PORT = process.env.PORT || 3000;
 
-app.use(
-  cors({
-    origin: ["http://localhost:5173", "http://localhost:5174"],
-    credentials: true,
-  })
-);
-
+// Middleware
 app.use(express.json());
+app.use(cors());
 
-app.use("/api/user", userRoutes);
-app.use("/api/trips", tripRoutes);
-app.use("/api/packing", packingRoutes);
-app.use("/api/security", securityRoute);
-
+// Root route
 app.get("/", (req, res) => {
-  res.json({ message: "Welcome to the Homepage" });
+  res.json({ message: "Welcome to TravelCast API" });
 });
 
-const startServer = async () => {
-  await connectDB();
-  await sequelize.sync();
+// Mount routes
+app.use('/api/user', authRoutes);       // Auth routes
+app.use('/api', userRoutes);            // User routes
+app.use("/api/trips", tripRoutes);      // Trip routes
+app.use('/api/security', securityRoutes); // Security routes
 
-  app.listen(3000, () => {
-    console.log("Server is running on port 3000");
+
+
+// Connect to database and start server
+connectDB()
+  .then(() => {
+    console.log("Database connected...");
+    console.log("Syncing database models...");
+    return sequelize.sync({ alter: true }); // Sync all models
+  })
+  .then(() => {
+    console.log("Database models synced successfully");
+    app.listen(PORT, () => {
+      console.log(`Server running on http://localhost:${PORT}`);
+    });
+  })
+  .catch(error => {
+    console.error('Failed to connect to database:', error);
+    process.exit(1);
   });
-};
-
-startServer();
