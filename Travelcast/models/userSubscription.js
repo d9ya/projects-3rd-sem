@@ -33,7 +33,7 @@ const UserSubscription = sequelize.define(
   }
 );
 
-// ✅ Associations
+// Associations
 UserSubscription.belongsTo(SubscriptionPlan, {
   foreignKey: "subscription_plan_id",
   as: "plan",
