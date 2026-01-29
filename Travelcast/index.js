@@ -14,7 +14,7 @@ const { connectDB, sequelize } = require("./database/database");
 // Models
 const SubscriptionPlan = require("./models/subscriptionModel");
 
-// ---------- MIDDLEWARE ----------
+
 app.use(
   cors({
     origin: ["http://localhost:5173", "http://localhost:5174"],
@@ -24,7 +24,7 @@ app.use(
 
 app.use(express.json());
 
-// ---------- ROUTES ----------
+
 app.use("/api/user", userRoutes);
 app.use("/api/trips", tripRoutes);
 
@@ -34,7 +34,7 @@ app.get("/", (req, res) => {
   res.json({ message: "Welcome to the Homepage" });
 });
 
-// ---------- SEED SUBSCRIPTION PLANS ----------
+
 async function seedPlans() {
   const plans = await SubscriptionPlan.findAll();
 
@@ -45,28 +45,28 @@ async function seedPlans() {
       { id: 3, name: "Premium", price: 700, duration: "monthly" },
     ]);
 
-    console.log("✅ Subscription plans seeded");
+    console.log("Subscription plans seeded");
   } else {
-    console.log("ℹ️ Subscription plans already exist");
+    console.log("Subscription plans already exist");
   }
 }
 
-// ---------- START SERVER ----------
+
 const startServer = async () => {
   try {
     await connectDB();
-    console.log("✅ Database connected");
+    console.log(" Database connected");
 
     await sequelize.sync();
-    console.log("✅ Models synced");
+    console.log(" Models synced");
 
-    await seedPlans(); // ⭐ IMPORTANT: seed AFTER sync
+    await seedPlans(); 
 
     app.listen(3000, () => {
-      console.log("🚀 Server is running on port 3000");
+      console.log(" Server is running on port 3000");
     });
   } catch (error) {
-    console.error("❌ Server failed to start:", error);
+    console.error(" Server failed to start:", error);
   }
 };
 
