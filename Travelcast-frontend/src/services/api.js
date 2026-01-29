@@ -16,12 +16,18 @@ Api.interceptors.request.use((req) => {
   return req;
 });
 
+<<<<<<< HEAD
+// Auth
+export const createUserApi = (data) => Api.post("/api/user/register", data);
+export const loginUserApi = (data) => Api.post("/api/user/login", data);
+=======
 
 export const createUserApi = (data) =>
   axios.post("http://localhost:3000/api/user/register", data, {
     headers: { "Content-Type": "application/json" },
   });
 export const loginUserApi = (data) => Api.post("/api/user/loginUser", data);
+>>>>>>> b239e37442efc7404c51db29c98d2437dd5b5cc0
 
 // Subscription
 export const subscribeUserApi = (data) => Api.post("/api/user/subscribe", data);
