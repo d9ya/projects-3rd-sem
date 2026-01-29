@@ -1,249 +1,281 @@
 import React, { useState, useEffect } from "react";
-import { BiBell, BiSearch } from "react-icons/bi";
-import { FiArrowRight } from "react-icons/fi";
+import {
+  BiSearch,
+  BiBell,
+  BiHome,
+  BiPlus,
+  BiListCheck,
+  BiHistory,
+  BiCog,
+  BiLogOut,
+} from "react-icons/bi";
 import { useNavigate } from "react-router-dom";
+
+const API_KEY = "4f11ab35f65e0493763249ca4395483f";
+
+const fetchWeatherByCity = async (city) => {
+  try {
+    const [currentRes, forecastRes] = await Promise.all([
+      fetch(
+        `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${API_KEY}&units=metric`
+      ),
+      fetch(
+        `https://api.openweathermap.org/data/2.5/forecast?q=${city}&appid=${API_KEY}&units=metric`
+      ),
+    ]);
+
+    if (!currentRes.ok) {
+      const errorData = await currentRes.json().catch(() => ({}));
+      if (currentRes.status === 404) throw new Error("City not found");
+      throw new Error(errorData.message || "Weather service unavailable");
+    }
+
+    if (!forecastRes.ok) {
+      const errorData = await forecastRes.json().catch(() => ({}));
+      if (forecastRes.status === 404) throw new Error("City not found");
+      throw new Error(errorData.message || "Forecast service unavailable");
+    }
+
+    const current = await currentRes.json();
+    const forecastData = await forecastRes.json();
+
+    const forecast = forecastData.list
+      .filter((item) => item.dt_txt.includes("12:00:00"))
+      .slice(0, 5)
+      .map((item) => ({
+        day: new Date(item.dt * 1000).toLocaleDateString("en-US", {
+          weekday: "short",
+        }),
+        temp: Math.round(item.main.temp),
+        icon: item.weather[0].icon,
+      }));
+
+    return {
+      current: {
+        temperature: Math.round(current.main.temp),
+        condition: current.weather[0].main,
+        icon: current.weather[0].icon,
+        location: `${current.name}, ${current.sys.country}`,
+        wind: `${Math.round(current.wind.speed * 3.6)} km/h`,
+        humidity: `${current.main.humidity}%`,
+        sunrise: current.sys.sunrise,
+        sunset: current.sys.sunset,
+      },
+      forecast,
+    };
+  } catch (error) {
+    console.error("Weather API error:", error);
+    throw error;
+  }
+};
 
 const UserDashboard = () => {
   const navigate = useNavigate();
-  const [dashboardData, setDashboardData] = useState(null);
-  const [loading, setLoading] = useState(true);
 
-  const menuItems = [
-    { id: "home", label: "Home", img: "home.png" },
-    { id: "create", label: "Create New Trip", img: "add.png" },
-    { id: "packing", label: "Packing List", img: "list.png" },
-    { id: "history", label: "Trip History", img: "history.png" },
-    { id: "subscription", label: "Subscription", img: "notification.png" },
-    { id: "settings", label: "Settings", img: "settings.png" }
-  ];
+  const [searchTerm, setSearchTerm] = useState("");
+  const [weatherData, setWeatherData] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
 
   useEffect(() => {
-    const fetchDashboardData = async () => {
-      try {
-        const response = await fetch('http://localhost:3000/api/dashboard');
-        if (response.ok) {
-          const data = await response.json();
-          setDashboardData(data);
-        } else {
-          console.error('Failed to fetch dashboard data');
+    navigator.geolocation.getCurrentPosition(
+      async (pos) => {
+        try {
+          const { latitude, longitude } = pos.coords;
+          const res = await fetch(
+            `https://api.openweathermap.org/data/2.5/weather?lat=${latitude}&lon=${longitude}&appid=${API_KEY}&units=metric`
+          );
+          const data = await res.json();
+          handleWeatherSearch(data.name);
+        } catch {
+          handleWeatherSearch("Kathmandu");
         }
-      } catch (error) {
-        console.error('Error fetching dashboard data:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchDashboardData();
+      },
+      () => handleWeatherSearch("Kathmandu")
+    );
   }, []);
 
-  const currentWeather = dashboardData?.weather?.current || {
-    temperature: 24,
-    condition: "Sunny",
-    location: "Kathmandu, Nepal",
-    wind: "12 km/h",
-    humidity: "60%"
+  const handleWeatherSearch = async (cityInput) => {
+    const city = cityInput || searchTerm.trim();
+    if (!city) return;
+
+    try {
+      setLoading(true);
+      setError("");
+      const data = await fetchWeatherByCity(city);
+      setWeatherData(data);
+    } catch (error) {
+      console.error("Weather search error:", error);
+      setError(error.message || "City not found");
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const forecast = dashboardData?.weather?.forecast || [
-    { day: "Mon", temp: 22, condition: "Sunny" },
-    { day: "Tue", temp: 23, condition: "Cloudy" },
-    { day: "Wed", temp: 25, condition: "Sunny" },
-    { day: "Thu", temp: 24, condition: "Rain" },
-    { day: "Fri", temp: 21, condition: "Cloudy" }
+  const destinations = [
+    {
+      id: 1,
+      tag: "Nature",
+      title: "Machhapuchhre Mountain",
+      location: "Pokhara, Nepal",
+      img: "mount.jpg",
+    },
+    {
+      id: 2,
+      tag: "Culture",
+      title: "Muktinath Temple",
+      location: "Mustang, Nepal",
+      img: "place2.jpeg",
+    },
+    {
+      id: 3,
+      tag: "Adventure",
+      title: "Annapurna Base Camp",
+      location: "Nepal",
+      img: "mountain.jpg",
+    },
+    {
+      id: 4,
+      tag: "History",
+      title: "Ram Janaki Mandir",
+      location: "Janakpur, Nepal",
+      img: "janaki.png",
+    },
   ];
-
-
-
-  const destinations = dashboardData?.destinations || [
-    { id: 1, tag: "Nature", title: "Machhapuchhre Mountain", location: "Pokhara, Nepal", img: "mount.jpg" },
-    { id: 2, tag: "Culture", title: "Muktinath Temple", location: "Mustang, Nepal", img: "place2.jpeg" },
-    { id: 3, tag: "Adventure", title: "ABC", location: "Nepal", img: "mountain.jpg" },
-    { id: 4, tag: "History", title: "Ram Janki Mandir", location: "Janakpur, Nepal", img: "janaki.png" }
-  ];
-
-  if (loading) {
-    return <div className="flex items-center justify-center h-screen">Loading...</div>;
-  }
 
   return (
-    <div style={{ display: "flex", height: "100vh", background: "#f0f4fa" }}>
-      {/* Sidebar */}
-      <div
-        style={{
-          width: "250px",
-          background: "rgb(184, 211, 240)",
-          padding: "20px",
-          display: "flex",
-          flexDirection: "column"
-        }}
-      >
-        <div style={{ marginBottom: "30px", display: "flex", alignItems: "center", gap: "12px" }}>
-          <img src="logo.png" alt="Logo" width={40} height={40} />
+    <div className="flex h-screen bg-[#f0f4fa]">
+      {/* SIDEBAR */}
+      <div className="w-[250px] bg-[rgb(184,211,240)] p-6 flex flex-col">
+        <div className="flex items-center gap-3 mb-10">
+          <img src="logo.png" width={40} />
           <div>
             <h2 className="text-xl font-semibold">Travel Cast</h2>
-            <p className="text-xs text-gray-500">Your Journey Starts</p>
+            <p className="text-xs text-gray-600">Your Journey Starts</p>
           </div>
         </div>
 
-        <div style={{ flex: 1 }}>
-          {menuItems.map((item) => (
-  <button
-    key={item.id}
-    className="w-full flex items-center gap-3 px-4 py-3 mb-4 rounded-lg hover:bg-white shadow-md hover:shadow-lg transition-shadow duration-200"
-    onClick={() => {
-      switch (item.id) {
-        case "home":
-          navigate("/userdashboard");
-          break;
-        case "create":
-          navigate("/createTrip");
-          break;
-        case "packing":
-          navigate("/packing");
-          break;
-        case "history":
-          navigate("/tripHistory");
-          break;
-        case "subscription":
-          navigate("/subscription");
-          break;
-        case "settings":
-          navigate("/settings");
-          break;
-        default:
-          break;
-      }
-    }}
-  >
-    <img src={item.img} alt={item.label} width={20} />
-    {item.label}
-  </button>
-))}
-
+        <div className="flex-1 space-y-3">
+          <SidebarItem
+            icon={<BiHome />}
+            label="Home"
+            onClick={() => navigate("/userdashboard")}
+          />
+          <SidebarItem
+            icon={<BiPlus />}
+            label="Create New Trip"
+            onClick={() => navigate("/createTrip")}
+          />
+          <SidebarItem
+            icon={<BiListCheck />}
+            label="Packing List"
+            onClick={() => navigate("/packing")}
+          />
+          <SidebarItem
+            icon={<BiHistory />}
+            label="Trip History"
+            onClick={() => navigate("/tripHistory")}
+          />
+          <SidebarItem
+            icon={<BiBell />}
+            label="Subscription"
+            onClick={() => navigate("/subscription")}
+          />
+          <SidebarItem
+            icon={<BiCog />}
+            label="Settings"
+            onClick={() => navigate("/settings")}
+          />
         </div>
 
-       <button
-  className="font-semibold flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-white w-full shadow-md hover:shadow-lg transition-shadow duration-200 mt-4"
-  onClick={() => {
-    localStorage.clear();
-    sessionStorage.clear();
-    navigate("/login");
-  }}
->
-  <img src="logout.png" alt="Logout" width={20} />
-  Logout
-</button>
-
+        <div className="mt-4">
+          <SidebarItem
+            icon={<BiLogOut />}
+            label="Logout"
+            onClick={() => {
+              localStorage.removeItem("token");
+              navigate("/login");
+            }}
+          />
+        </div>
       </div>
 
-      {/* Main Content */}
+      {/* MAIN CONTENT */}
       <div className="flex-1 p-8 overflow-y-auto bg-[#f8fafc]">
-
-        {/* Top Bar */}
         <div className="flex justify-between mb-10">
           <div className="flex items-center gap-3 bg-white px-4 py-3 rounded-xl shadow-sm w-1/2">
-            <BiSearch className="w-5 h-5 text-gray-400" />
+            <BiSearch />
             <input
-              type="text"
-              placeholder="Search weather, destinations, trips..."
+              placeholder="Search city for weather..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              onKeyDown={(e) => e.key === "Enter" && handleWeatherSearch()}
               className="w-full outline-none text-sm"
             />
-          </div>
-
-          <div className="relative">
-            <BiBell className="w-6 h-6 text-gray-600" />
-            <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs px-2 rounded-full">
-              3
-            </span>
+            <button
+              onClick={() => handleWeatherSearch()}
+              className="text-blue-600 text-sm font-medium"
+            >
+              Search
+            </button>
           </div>
         </div>
 
-        {/* Welcome */}
-        <div className="mb-10">
-          <h1 className="text-3xl font-bold">Welcome back, John!</h1>
-          <p className="text-gray-600">
-            Here's what's happening with your travel plans today
-          </p>
-        </div>
-
-        {/* WEATHER SECTION */}
-        <div className="mb-14">
-          <div className="grid grid-cols-3 gap-6 mb-8">
-            <WeatherBox currentWeather={currentWeather} />
-            <SuitabilityBox suitability={dashboardData?.weather?.suitability || 85} />
-            <AlertBox alerts={dashboardData?.weather?.alerts || ["Light rain expected in next 48 hours"]} />
+        {error && (
+          <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-6">
+            {error}
           </div>
+        )}
 
-          <Forecast forecast={forecast} />
-        </div>
+        {loading && (
+          <div className="text-center py-4">
+            <p>Searching for weather data...</p>
+          </div>
+        )}
 
-        {/* RECOMMENDED DESTINATIONS */}
-        <SectionHeader
-          title="Recommended Destinations"
-          desc="Popular places based on your interests"
-        >
-        </SectionHeader>
+        {weatherData && (
+          <>
+            <WeatherBox data={weatherData.current} />
+            <Forecast forecast={weatherData.forecast} />
+          </>
+        )}
+
+        <h2 className="text-2xl font-bold mt-14 mb-6">
+          Recommended Destinations
+        </h2>
 
         <div className="grid grid-cols-4 gap-6">
-          {destinations.map(destination => (
-            <DestinationCard
-              key={destination.id}
-              tag={destination.tag}
-              title={destination.title}
-              location={destination.location}
-              img={destination.img}
-            />
+          {destinations.map((d) => (
+            <DestinationCard key={d.id} {...d} />
           ))}
         </div>
-
       </div>
     </div>
   );
 };
 
-const SectionHeader = ({ title, desc, children }) => (
-  <div className="flex justify-between items-center mb-6">
-    <div>
-      <h2 className="text-2xl font-bold">{title}</h2>
-      <p className="text-gray-600">{desc}</p>
-    </div>
-    {children}
-  </div>
+const SidebarItem = ({ icon, label, onClick }) => (
+  <button
+    onClick={onClick}
+    className="flex items-center gap-4 w-full h-[52px] px-5 rounded-xl hover:bg-white shadow-sm hover:shadow-md transition text-left"
+  >
+    <span className="text-xl">{icon}</span>
+    <span className="text-sm font-medium truncate">{label}</span>
+  </button>
 );
 
-const WeatherBox = ({ currentWeather }) => (
-  <div className="bg-white p-6 rounded-2xl shadow-sm">
-    <h3 className="font-semibold">Current Weather</h3>
-    <p className="text-sm text-gray-500 mb-4">{currentWeather.location}</p>
-    <div className="flex items-center gap-4">
-      <img src="sun.png" className="w-14 h-14" />
+const WeatherBox = ({ data }) => (
+  <div className="bg-white p-6 rounded-2xl shadow-sm mb-10">
+    <h3 className="font-semibold">{data.location}</h3>
+    <div className="flex items-center gap-4 mt-4">
+      <img src={`https://openweathermap.org/img/wn/${data.icon}@2x.png`} />
       <div>
-        <p className="text-3xl font-bold">{currentWeather.temperature}°C</p>
-        <p className="text-gray-600">{currentWeather.condition}</p>
+        <p className="text-4xl font-bold">{data.temperature}°C</p>
+        <p>{data.condition}</p>
       </div>
     </div>
-    <p className="text-sm text-gray-600 mt-4">Wind: {currentWeather.wind}</p>
-    <p className="text-sm text-gray-600">Humidity: {currentWeather.humidity}</p>
-  </div>
-);
-
-const SuitabilityBox = ({ suitability }) => (
-  <div className="bg-white p-6 rounded-2xl shadow-sm text-center flex flex-col justify-center">
-    <h3 className="font-semibold mb-4">Travel Suitability</h3>
-    <p className="text-4xl font-bold text-green-600">{suitability}%</p>
-    <p className="text-gray-600 mt-2">Excellent for sightseeing & hiking</p>
-  </div>
-);
-
-const AlertBox = ({ alerts }) => (
-  <div className="bg-white p-6 rounded-2xl shadow-sm">
-    <h3 className="font-semibold mb-4">Weather Alerts</h3>
-    {alerts.map((alert, index) => (
-      <div key={index} className="bg-yellow-100 text-yellow-800 px-4 py-3 rounded-xl text-sm mb-2">
-        ⚠️ {alert}
-      </div>
-    ))}
+    <p className="text-sm mt-3">Wind: {data.wind}</p>
+    <p className="text-sm">Humidity: {data.humidity}</p>
   </div>
 );
 
@@ -254,8 +286,11 @@ const Forecast = ({ forecast }) => (
       {forecast.map((day, i) => (
         <div key={i} className="bg-gray-50 p-4 rounded-xl">
           <p className="font-semibold">{day.day}</p>
-          <img src="sun.png" className="w-10 h-10 mx-auto my-2" />
-          <p className="font-semibold">{day.temp}°C</p>
+          <img
+            src={`https://openweathermap.org/img/wn/${day.icon}.png`}
+            className="mx-auto"
+          />
+          <p>{day.temp}°C</p>
         </div>
       ))}
     </div>
@@ -263,10 +298,10 @@ const Forecast = ({ forecast }) => (
 );
 
 const DestinationCard = ({ tag, title, location, img }) => (
-  <div className="bg-white rounded-2xl overflow-hidden shadow-sm">
+  <div className="bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition">
     <img src={img} className="h-40 w-full object-cover" />
     <div className="p-4">
-      <span className="text-sm font-semibold">{tag}</span>
+      <span className="text-xs font-semibold text-gray-500">{tag}</span>
       <h4 className="font-bold mt-2">{title}</h4>
       <p className="text-sm text-gray-600">{location}</p>
     </div>

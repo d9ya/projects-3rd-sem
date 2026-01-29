@@ -1,12 +1,12 @@
 const User = require("../models/userModel");
-const bcrypt = require("bcrypt");
+const bcrypt = require("bcryptjs");
 const crypto = require("crypto");
 const jwt = require("jsonwebtoken"); 
 const sendEmail = require("../utils/sendEmail");
 
 const registerUser = async (req, res) => {
   try {
-    const { username, email, password, role } = req.body;
+    const { username, fullName, email, password, role } = req.body;
 
     if (!username || !email || !password) {
       return res.status(400).json({ success: false, message: "Required fields are missing: username, email, and password are required" });
@@ -24,21 +24,22 @@ const registerUser = async (req, res) => {
 
     const userData = { 
       username, 
+      fullName,
       email, 
-      password: hashedPassword, 
+      password, 
       role: userRole
     };
     
     const newUser = await User.create(userData);
     res.status(201).json({ success: true, data: newUser });
   } catch (err) {
-    console.error(err); 
     res.status(500).json({ success: false, message: "Server error" });
   }
 };
 
-const login = async (req, res) => {
+const loginUser = async (req, res) => {
   try {
+    console.log('Login request received:', req.body);
     const { email, password } = req.body;
 
     if (!email || !password) {
@@ -49,16 +50,19 @@ const login = async (req, res) => {
     }
 
     // Find user
+   
     const user = await User.findOne({ where: { email } });
+    
+    
     if (!user) {
       return res.status(400).json({
         success: false,
         message: "User not found",
       });
     }
-
-    // Compare password
     const isValidUser = await bcrypt.compare(password, user.password);
+   
+    
     if (!isValidUser) {
       return res.status(400).json({
         success: false,
@@ -66,7 +70,8 @@ const login = async (req, res) => {
       });
     }
 
-    // Generate JWT token
+   
+    console.log('Generating JWT token...');
     const token = jwt.sign(
       {
         id: user.id,
@@ -77,6 +82,7 @@ const login = async (req, res) => {
       process.env.JWT_SECRET,
       { expiresIn: "1d" }
     );
+    console.log('Token generated successfully');
 
     return res.status(200).json({
       success: true,
@@ -86,7 +92,7 @@ const login = async (req, res) => {
     });
 
   } catch (error) {
-    console.error("Login error:", error);
+   
     return res.status(500).json({
       success: false,
       message: "Error logging in user",
@@ -96,4 +102,4 @@ const login = async (req, res) => {
   }
 };
 
-module.exports = { registerUser, login };
+module.exports = { registerUser, loginUser };

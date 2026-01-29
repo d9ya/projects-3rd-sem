@@ -1,5 +1,7 @@
 const { DataTypes } = require("sequelize");
 const { sequelize } = require("../database/database");
+const bcrypt = require("bcryptjs");
+
 
 const User = sequelize.define(
   "User",
@@ -40,6 +42,14 @@ const User = sequelize.define(
       allowNull: true,
       defaultValue: null
     },
+    fullName: {
+      type: DataTypes.STRING,
+      allowNull: true,
+      defaultValue: null,
+      set(value) {
+        this.setDataValue("fullName", value?.trim());
+      },
+    },
     role: {
       type: DataTypes.ENUM("user", "admin"),
       allowNull: false,
@@ -71,6 +81,12 @@ const User = sequelize.define(
   {
     tableName: "users",
     timestamps: true,
+    // indexes: [
+    //   {
+    //     unique: true,
+    //     fields: ['phoneNumber']
+    //   }
+    // ]
   }
 );
 
@@ -91,10 +107,30 @@ User.beforeUpdate(async (user) => {
   }
 });
 
+
+
 // Instance method to compare password
 User.prototype.comparePassword = async function(candidatePassword) {
   const bcrypt = require('bcryptjs');
+  
+  // Check if password exists and is not undefined
+  if (!this.password) {
+    throw new Error('Password not found for user');
+  }
+  
   return await bcrypt.compare(candidatePassword, this.password);
 };
+
+// Add unique constraint for phoneNumber after model definition
+User.addHook('afterSync', async () => {
+  try {
+    await sequelize.queryInterface.addConstraint('users', {
+      fields: ['phoneNumber'],
+      type: 'unique',
+      name: 'users_phone_number_unique'
+    });
+  } catch (error) {
+  }
+});
 
 module.exports = User;

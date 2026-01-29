@@ -1,6 +1,5 @@
 require('dotenv').config();
 const express = require("express");
-<<<<<<< HEAD
 const app = express();
 const cors = require("cors");
 
@@ -32,8 +31,8 @@ app.use("/api/trips", tripRoutes);
 
 app.use("/api/subscription", SubscriptionRoute);
 
-=======
 const cors = require('cors');
+const settingRoutes = require('./routes/settingRoutes');
 
 // Routes
 const userRoutes = require('./routes/settingRoutes');
@@ -44,19 +43,18 @@ const securityRoutes = require("./routes/securityRoutes");
 const { connectDB, sequelize } = require('./database/database');
 
 const app = express();
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 5000;
 
 // Middleware
 app.use(express.json());
 app.use(cors());
 
-// Root route
->>>>>>> b239e37442efc7404c51db29c98d2437dd5b5cc0
+// Root routeb
+
 app.get("/", (req, res) => {
   res.json({ message: "Welcome to TravelCast API" });
 });
 
-<<<<<<< HEAD
 
 async function seedPlans() {
   const plans = await SubscriptionPlan.findAll();
@@ -94,7 +92,6 @@ const startServer = async () => {
 };
 
 startServer();
-=======
 // Mount routes
 app.use('/api/user', authRoutes);       // Auth routes
 app.use('/api', userRoutes);            // User routes
@@ -102,6 +99,26 @@ app.use("/api/trips", tripRoutes);      // Trip routes
 app.use('/api/security', securityRoutes); // Security routes
 
 
+// User routes
+app.use('/api', settingRoutes)
+// app.use('/api', userRoutes);
+app.use("/api/dashboard", require("./routes/dashboardRoutes"));
+
+
+// Connect to database and start server
+connectDB().then(() => {
+  // Sync database models
+  const { sequelize } = require('./database/database');
+  return sequelize.sync({ alter: true }); // Use alter to update existing tables without losing data
+}).then(() => {
+  const PORT = process.env.PORT || 5000;
+  app.listen(PORT, () => {
+    console.log(`Server running on port ${PORT}`);
+  });
+}).catch(error => {
+  console.error("Failed to start server:", error);
+  process.exit(1);
+});
 
 // Connect to database and start server
 connectDB()
@@ -120,4 +137,3 @@ connectDB()
     console.error('Failed to connect to database:', error);
     process.exit(1);
   });
->>>>>>> b239e37442efc7404c51db29c98d2437dd5b5cc0

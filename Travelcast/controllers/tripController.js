@@ -35,7 +35,7 @@ const createTrip = async (req, res) => {
       trip: newTrip,
     });
   } catch (error) {
-    console.error("Create trip error:", error);
+   
     res.status(500).json({
       message: "Internal server error",
     });

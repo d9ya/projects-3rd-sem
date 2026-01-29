@@ -54,10 +54,12 @@ const CreateTrip = () => {
         alert("Trip saved successfully!");
         setTrip({ name: "", destination: "", startDate: "", endDate: "", travelers: 1, note: "" });
         setWeather([]);
-        console.log("Saved trip:", data);
-      } else alert(data.message || "Something went wrong");
-    } catch (err) {
-      console.error("Submit error:", err);
+       
+      } else {
+        alert(data.message || "Something went wrong");
+      }
+    } catch (error) {
+      
       alert("Backend not responding");
     }
   };

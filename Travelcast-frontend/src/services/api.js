@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const Api = axios.create({
-  baseURL: import.meta.env.VITE_API_BASE_URL || "http://localhost:3000",
+  baseURL: import.meta.env.VITE_API_BASE_URL || "http://localhost:5000",
   headers: {
     "Content-Type": "application/json",
   },
@@ -16,18 +16,16 @@ Api.interceptors.request.use((req) => {
   return req;
 });
 
-<<<<<<< HEAD
 // Auth
 export const createUserApi = (data) => Api.post("/api/user/register", data);
 export const loginUserApi = (data) => Api.post("/api/user/login", data);
-=======
-
-export const createUserApi = (data) =>
-  axios.post("http://localhost:3000/api/user/register", data, {
-    headers: { "Content-Type": "application/json" },
-  });
-export const loginUserApi = (data) => Api.post("/api/user/loginUser", data);
->>>>>>> b239e37442efc7404c51db29c98d2437dd5b5cc0
+export const getDashboardApi = (data) => Api.get("/api/dashboard/dashboard", data);
+export const getProfileApi = () => Api.get("/api/profile"); // GET profile
+export const updateProfileApi = (data) => Api.put("/api/profile", data); // PUT profile update
+export const changePasswordApi = (data) => Api.put("/api/change-password", data);
+export const subscribeUserApi = (data) => Api.post("/api/user/subscribe", data);
+ 
+export default Api;
 
 // Subscription
 export const subscribeUserApi = (data) => Api.post("/api/user/subscribe", data);
@@ -53,3 +51,4 @@ export const savePackingNotesApi = (data) =>
 
 export const saveSecurityAnswersApi = (data) =>
   Api.post("/api/security/setup", data);
+

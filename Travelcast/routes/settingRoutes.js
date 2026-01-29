@@ -1,24 +1,20 @@
-const express = require('express');
+const express = require("express");
 const router = express.Router();
+const { authenticateToken } = require('../middleware/auth');
+
 const {
   getUserProfile,
   updateUserProfile,
-  getUserSettings,
   changePassword,
   subscribeUser
-} = require('../controllers/settingController');
+} = require("../controllers/settingController");
 
-// Profile routes
-router.get('/profile', getUserProfile);
-router.put('/profile', updateUserProfile);
 
-// Settings routes
-router.get('/settings', getUserSettings);
+router.get("/profile", authenticateToken, getUserProfile);
+router.put("/profile", authenticateToken, updateUserProfile);
 
-// Password routes
-router.put('/change-password', changePassword);
+router.put("/change-password", authenticateToken, changePassword);
 
-// Subscription routes
-router.post('/subscribe', subscribeUser);
+router.post("/subscribe", authenticateToken, subscribeUser);
 
 module.exports = router;
