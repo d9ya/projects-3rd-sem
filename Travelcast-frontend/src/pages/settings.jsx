@@ -6,7 +6,7 @@ import {
   BiHome,
   BiPlus,
   BiListCheck,
-  BiHistory,
+  BiHistory,  
   BiBell,
   BiCog,
   BiLogOut,
@@ -16,79 +16,6 @@ import {
   updateProfileApi,
   changePasswordApi,
 } from "../services/api";
-
-const css = `
-.settings-page {
-  max-width: 900px;
-  margin: 40px auto;
-  font-family: system-ui, sans-serif;
-}
-.settings-header h1 {
-  font-size: 28px;
-  margin-bottom: 6px;
-}
-.tabs {
-  display: flex;
-  gap: 20px;
-  margin-bottom: 30px;
-  border-bottom: 1px solid #eee;
-}
-.tab {
-  background: none;
-  border: none;
-  padding: 10px 0;
-  font-size: 15px;
-  cursor: pointer;
-  color: #666;
-}
-.tab.active {
-  color: #000;
-  border-bottom: 2px solid #007bff;
-}
-.card {
-  background: #fff;
-  border: 1px solid #eee;
-  border-radius: 10px;
-  padding: 24px;
-  margin-bottom: 30px;
-}
-.muted {
-  color: #777;
-  margin-bottom: 20px;
-}
-.form-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: 20px;
-  margin-bottom: 25px;
-}
-label {
-  font-size: 13px;
-  color: #555;
-}
-input {
-  width: 100%;
-  padding: 10px;
-  margin-top: 6px;
-  border-radius: 6px;
-  border: 1px solid #ddd;
-}
-.password-icon {
-  position: absolute;
-  right: 10px;
-  top: 38px;
-  cursor: pointer;
-  color: #777;
-}
-.primary-btn {
-  background: #007bff;
-  color: #fff;
-  border: none;
-  padding: 10px 20px;
-  border-radius: 6px;
-  cursor: pointer;
-}
-`;
 
 const SidebarItem = ({ icon, label, onClick, active }) => (
   <button
@@ -129,7 +56,6 @@ const Settings = () => {
   const [profileError, setProfileError] = useState("");
   const [passwordError, setPasswordError] = useState("");
 
-
   useEffect(() => {
     const fetchProfile = async () => {
       try {
@@ -145,7 +71,7 @@ const Settings = () => {
       }
     };
     fetchProfile();
-  }, []);
+  }, [navigate]);
 
   const handleProfileSubmit = async (e) => {
     e.preventDefault();
@@ -165,6 +91,7 @@ const Settings = () => {
       setProfileLoading(false);
     }
   };
+
   const handlePasswordSubmit = async (e) => {
     e.preventDefault();
     setPasswordLoading(true);
@@ -194,14 +121,20 @@ const Settings = () => {
         toast.error(res.data.message || "Failed to change password");
       }
     } catch (err) {
-      toast.error(err.response?.data?.message || "Server error. Please try again.");
+      toast.error(
+        err.response?.data?.message || "Server error. Please try again."
+      );
     } finally {
       setPasswordLoading(false);
     }
   };
 
   if (loading) {
-    return <div className="flex items-center justify-center h-screen">Loading...</div>;
+    return (
+      <div className="flex items-center justify-center h-screen text-lg font-medium">
+        Loading...
+      </div>
+    );
   }
 
   return (
@@ -214,10 +147,31 @@ const Settings = () => {
         </div>
 
         <div className="flex-1 space-y-3">
-          <SidebarItem icon={<BiHome />} label="Home" onClick={() => navigate("/userdashboard")} />
-          <SidebarItem icon={<BiPlus />} label="Create New Trip" />
-          <SidebarItem icon={<BiListCheck />} label="Packing List" />
-          <SidebarItem icon={<BiBell />} label="Subscription" />
+          <SidebarItem
+            icon={<BiHome />}
+            label="Home"
+            onClick={() => navigate("/userdashboard")}
+          />
+          <SidebarItem
+            icon={<BiPlus />}
+            label="Create New Trip"
+            onClick={() => navigate("/createTrip")}
+          />
+          <SidebarItem
+            icon={<BiListCheck />}
+            label="Packing List"
+            onClick={() => navigate("/packing")}
+          />
+          <SidebarItem
+            icon={<BiHistory />}
+            label="Trip History"
+            onClick={() => navigate("/tripHistory")}
+          />
+          <SidebarItem
+            icon={<BiBell />}
+            label="Subscription"
+            onClick={() => navigate("/subscription")}
+          />
           <SidebarItem icon={<BiCog />} label="Settings" active />
         </div>
 
@@ -231,63 +185,128 @@ const Settings = () => {
         />
       </div>
 
-      {/* MAIN */}
       <div className="flex-1 p-8 overflow-y-auto">
-        <style>{css}</style>
-
-        <div className="settings-page">
-          <div className="settings-header bg-white p-5 rounded-lg mb-6">
-            <h1>Profile Settings</h1>
-            <p>Manage your account</p>
+        <div className="max-w-[900px] mx-auto mt-6 font-sans">
+          <div className="bg-white p-5 rounded-lg mb-6 shadow-sm">
+            <h1 className="text-[28px] font-semibold mb-1">
+              Profile Settings
+            </h1>
+            <p className="text-gray-600">Manage your account</p>
           </div>
 
-          <div className="tabs">
-            <button className={`tab ${activeTab === "profile" ? "active" : ""}`} onClick={() => setActiveTab("profile")}>
+          <div className="flex gap-6 mb-8 border-b border-gray-200">
+            <button
+              className={`pb-2 text-[15px] font-medium transition ${
+                activeTab === "profile"
+                  ? "text-black border-b-2 border-blue-500"
+                  : "text-gray-500 hover:text-black"
+              }`}
+              onClick={() => setActiveTab("profile")}
+            >
               Profile
             </button>
-            <button className={`tab ${activeTab === "password" ? "active" : ""}`} onClick={() => setActiveTab("password")}>
+
+            <button
+              className={`pb-2 text-[15px] font-medium transition ${
+                activeTab === "password"
+                  ? "text-black border-b-2 border-blue-500"
+                  : "text-gray-500 hover:text-black"
+              }`}
+              onClick={() => setActiveTab("password")}
+            >
               Password
             </button>
           </div>
 
           {activeTab === "profile" && (
-            <div className="card">
+            <div className="bg-white border border-gray-200 rounded-xl p-6 mb-8 shadow-sm">
               <form onSubmit={handleProfileSubmit}>
-                <div className="form-grid">
-                  <input name="fullName" value={profile.fullName} onChange={(e) => setProfile({ ...profile, fullName: e.target.value })} />
-                  <input name="email" value={profile.email} onChange={(e) => setProfile({ ...profile, email: e.target.value })} />
-                  <input name="phoneNumber" value={profile.phoneNumber} onChange={(e) => setProfile({ ...profile, phoneNumber: e.target.value })} />
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 mb-6">
+                  <input
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md outline-none focus:ring-2 focus:ring-blue-500"
+                    name="fullName"
+                    placeholder="Full Name"
+                    value={profile.fullName}
+                    onChange={(e) =>
+                      setProfile({
+                        ...profile,
+                        fullName: e.target.value,
+                      })
+                    }
+                  />
+                  <input
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md outline-none focus:ring-2 focus:ring-blue-500"
+                    name="email"
+                    placeholder="Email"
+                    value={profile.email}
+                    onChange={(e) =>
+                      setProfile({
+                        ...profile,
+                        email: e.target.value,
+                      })
+                    }
+                  />
+                  <input
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md outline-none focus:ring-2 focus:ring-blue-500"
+                    name="phoneNumber"
+                    placeholder="Phone Number"
+                    value={profile.phoneNumber}
+                    onChange={(e) =>
+                      setProfile({
+                        ...profile,
+                        phoneNumber: e.target.value,
+                      })
+                    }
+                  />
                 </div>
-                <button className="primary-btn">{profileLoading ? "Saving..." : "Save Changes"}</button>
+
+                <button className="bg-blue-500 text-white px-5 py-2 rounded-md hover:bg-blue-600 transition">
+                  {profileLoading ? "Saving..." : "Save Changes"}
+                </button>
               </form>
             </div>
           )}
 
           {activeTab === "password" && (
-            <div className="card">
-              {passwordError && <p className="text-red-600 mb-3">{passwordError}</p>}
+            <div className="bg-white border border-gray-200 rounded-xl p-6 mb-8 shadow-sm">
+              {passwordError && (
+                <p className="text-red-600 mb-3">{passwordError}</p>
+              )}
+
               <form onSubmit={handlePasswordSubmit}>
-                {["currentPassword", "newPassword", "confirmPassword"].map((field) => (
-                  <div key={field} style={{ position: "relative", marginBottom: 20 }}>
+                {[
+                  "currentPassword",
+                  "newPassword",
+                  "confirmPassword",
+                ].map((field) => (
+                  <div key={field} className="relative mb-5">
                     <input
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md outline-none focus:ring-2 focus:ring-blue-500"
                       type={showPasswords[field] ? "text" : "password"}
                       placeholder={field}
                       value={passwordForm[field]}
                       onChange={(e) =>
-                        setPasswordForm({ ...passwordForm, [field]: e.target.value })
+                        setPasswordForm({
+                          ...passwordForm,
+                          [field]: e.target.value,
+                        })
                       }
                     />
                     <span
-                      className="password-icon"
+                      className="absolute right-3 top-1/2 -translate-y-1/2 cursor-pointer text-gray-500"
                       onClick={() =>
-                        setShowPasswords({ ...showPasswords, [field]: !showPasswords[field] })
+                        setShowPasswords({
+                          ...showPasswords,
+                          [field]: !showPasswords[field],
+                        })
                       }
                     >
                       {showPasswords[field] ? <FaEye /> : <FaEyeSlash />}
                     </span>
                   </div>
                 ))}
-                <button className="primary-btn">
+
+                <button className="bg-blue-500 text-white px-5 py-2 rounded-md hover:bg-blue-600 transition">
                   {passwordLoading ? "Updating..." : "Update Password"}
                 </button>
               </form>

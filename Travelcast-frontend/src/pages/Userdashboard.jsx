@@ -5,12 +5,14 @@ import {
   BiHome,
   BiPlus,
   BiListCheck,
+  BiHistory,
   BiCog,
   BiLogOut,
 } from "react-icons/bi";
 import { useNavigate } from "react-router-dom";
 
 const API_KEY = "4f11ab35f65e0493763249ca4395483f";
+
 const fetchWeatherByCity = async (city) => {
   try {
     const [currentRes, forecastRes] = await Promise.all([
@@ -22,58 +24,50 @@ const fetchWeatherByCity = async (city) => {
       ),
     ]);
 
-    // Check if either request failed
     if (!currentRes.ok) {
       const errorData = await currentRes.json().catch(() => ({}));
-      if (currentRes.status === 404) {
-        throw new Error("City not found");
-      } else {
-        throw new Error(errorData.message || "Weather service unavailable");
-      }
+      if (currentRes.status === 404) throw new Error("City not found");
+      throw new Error(errorData.message || "Weather service unavailable");
     }
 
     if (!forecastRes.ok) {
       const errorData = await forecastRes.json().catch(() => ({}));
-      if (forecastRes.status === 404) {
-        throw new Error("City not found");
-      } else {
-        throw new Error(errorData.message || "Forecast service unavailable");
-      }
+      if (forecastRes.status === 404) throw new Error("City not found");
+      throw new Error(errorData.message || "Forecast service unavailable");
     }
 
     const current = await currentRes.json();
     const forecastData = await forecastRes.json();
-  
-  const forecast = forecastData.list
-    .filter((item) => item.dt_txt.includes("12:00:00"))
-    .slice(0, 5)
-    .map((item) => ({
-      day: new Date(item.dt * 1000).toLocaleDateString("en-US", {
-        weekday: "short",
-      }),
-      temp: Math.round(item.main.temp),
-      icon: item.weather[0].icon,
-    }));
 
-  return {
-    current: {
-      temperature: Math.round(current.main.temp),
-      condition: current.weather[0].main,
-      icon: current.weather[0].icon,
-      location: `${current.name}, ${current.sys.country}`,
-      wind: `${Math.round(current.wind.speed * 3.6)} km/h`,
-      humidity: `${current.main.humidity}%`,
-      sunrise: current.sys.sunrise,
-      sunset: current.sys.sunset,
-    },
-    forecast,
-  };
+    const forecast = forecastData.list
+      .filter((item) => item.dt_txt.includes("12:00:00"))
+      .slice(0, 5)
+      .map((item) => ({
+        day: new Date(item.dt * 1000).toLocaleDateString("en-US", {
+          weekday: "short",
+        }),
+        temp: Math.round(item.main.temp),
+        icon: item.weather[0].icon,
+      }));
+
+    return {
+      current: {
+        temperature: Math.round(current.main.temp),
+        condition: current.weather[0].main,
+        icon: current.weather[0].icon,
+        location: `${current.name}, ${current.sys.country}`,
+        wind: `${Math.round(current.wind.speed * 3.6)} km/h`,
+        humidity: `${current.main.humidity}%`,
+        sunrise: current.sys.sunrise,
+        sunset: current.sys.sunset,
+      },
+      forecast,
+    };
   } catch (error) {
     console.error("Weather API error:", error);
     throw error;
   }
 };
-
 
 const UserDashboard = () => {
   const navigate = useNavigate();
@@ -82,7 +76,6 @@ const UserDashboard = () => {
   const [weatherData, setWeatherData] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-
 
   useEffect(() => {
     navigator.geolocation.getCurrentPosition(
@@ -107,7 +100,6 @@ const UserDashboard = () => {
     if (!city) return;
 
     try {
-
       setLoading(true);
       setError("");
       const data = await fetchWeatherByCity(city);
@@ -153,7 +145,7 @@ const UserDashboard = () => {
 
   return (
     <div className="flex h-screen bg-[#f0f4fa]">
-
+      {/* SIDEBAR */}
       <div className="w-[250px] bg-[rgb(184,211,240)] p-6 flex flex-col">
         <div className="flex items-center gap-3 mb-10">
           <img src="logo.png" width={40} />
@@ -164,11 +156,36 @@ const UserDashboard = () => {
         </div>
 
         <div className="flex-1 space-y-3">
-          <SidebarItem icon={<BiHome />} label="Home" onClick={() => navigate("/userdashboard")} />
-          <SidebarItem icon={<BiPlus />} label="Create New Trip" />
-          <SidebarItem icon={<BiListCheck />} label="Packing List" />
-          <SidebarItem icon={<BiBell />} label="Subscription" />
-          <SidebarItem icon={<BiCog />} label="Settings" onClick={() => navigate("/settings")} />
+          <SidebarItem
+            icon={<BiHome />}
+            label="Home"
+            onClick={() => navigate("/userdashboard")}
+          />
+          <SidebarItem
+            icon={<BiPlus />}
+            label="Create New Trip"
+            onClick={() => navigate("/createTrip")}
+          />
+          <SidebarItem
+            icon={<BiListCheck />}
+            label="Packing List"
+            onClick={() => navigate("/packing")}
+          />
+          <SidebarItem
+            icon={<BiHistory />}
+            label="Trip History"
+            onClick={() => navigate("/tripHistory")}
+          />
+          <SidebarItem
+            icon={<BiBell />}
+            label="Subscription"
+            onClick={() => navigate("/subscription")}
+          />
+          <SidebarItem
+            icon={<BiCog />}
+            label="Settings"
+            onClick={() => navigate("/settings")}
+          />
         </div>
 
         <div className="mt-4">
@@ -183,8 +200,8 @@ const UserDashboard = () => {
         </div>
       </div>
 
+      {/* MAIN CONTENT */}
       <div className="flex-1 p-8 overflow-y-auto bg-[#f8fafc]">
-
         <div className="flex justify-between mb-10">
           <div className="flex items-center gap-3 bg-white px-4 py-3 rounded-xl shadow-sm w-1/2">
             <BiSearch />
@@ -195,26 +212,34 @@ const UserDashboard = () => {
               onKeyDown={(e) => e.key === "Enter" && handleWeatherSearch()}
               className="w-full outline-none text-sm"
             />
-            <button onClick={() => handleWeatherSearch()}>Search</button>
+            <button
+              onClick={() => handleWeatherSearch()}
+              className="text-blue-600 text-sm font-medium"
+            >
+              Search
+            </button>
           </div>
-         
         </div>
+
         {error && (
           <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-6">
             {error}
           </div>
         )}
+
         {loading && (
           <div className="text-center py-4">
             <p>Searching for weather data...</p>
           </div>
         )}
+
         {weatherData && (
           <>
             <WeatherBox data={weatherData.current} />
             <Forecast forecast={weatherData.forecast} />
           </>
         )}
+
         <h2 className="text-2xl font-bold mt-14 mb-6">
           Recommended Destinations
         </h2>
@@ -229,20 +254,10 @@ const UserDashboard = () => {
   );
 };
 
-
 const SidebarItem = ({ icon, label, onClick }) => (
   <button
     onClick={onClick}
-    className="
-      flex items-center gap-4
-      w-full h-[52px]
-      px-5
-      rounded-xl
-      hover:bg-white
-      shadow-sm hover:shadow-md
-      transition
-      text-left
-    "
+    className="flex items-center gap-4 w-full h-[52px] px-5 rounded-xl hover:bg-white shadow-sm hover:shadow-md transition text-left"
   >
     <span className="text-xl">{icon}</span>
     <span className="text-sm font-medium truncate">{label}</span>
@@ -271,7 +286,10 @@ const Forecast = ({ forecast }) => (
       {forecast.map((day, i) => (
         <div key={i} className="bg-gray-50 p-4 rounded-xl">
           <p className="font-semibold">{day.day}</p>
-          <img src={`https://openweathermap.org/img/wn/${day.icon}.png`} className="mx-auto" />
+          <img
+            src={`https://openweathermap.org/img/wn/${day.icon}.png`}
+            className="mx-auto"
+          />
           <p>{day.temp}°C</p>
         </div>
       ))}
