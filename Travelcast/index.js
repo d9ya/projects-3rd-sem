@@ -1,139 +1,116 @@
-require('dotenv').config();
+require("dotenv").config();
+
 const express = require("express");
-const app = express();
 const cors = require("cors");
 
-// Routes
-const userRoutes = require("./routes/userRoutes");
-const tripRoutes = require("./routes/tripRoutes");
+const app = express();
+const PORT = process.env.PORT || 3000;
 
-const SubscriptionRoute = require("./routes/SubscriptionRoute");
-
-// DB
+// =====================
+// Database
+// =====================
 const { connectDB, sequelize } = require("./database/database");
 
+// =====================
 // Models
+// =====================
 const SubscriptionPlan = require("./models/subscriptionModel");
+const Trip = require("./models/tripModel"); // Make sure you have this imported
 
+// =====================
+// Routes
+// =====================
+const authRoutes = require("./routes/authRoutes");
+const tripRoutes = require("./routes/tripRoutes");
+const subscriptionRoutes = require("./routes/subscriptionRoute");
+const settingRoutes = require("./routes/settingRoutes");
+const securityRoutes = require("./routes/securityRoutes");
+const dashboardRoutes = require("./routes/dashboardRoutes");
+const packingRoutes = require("./routes/packingRoutes"); 
 
+// =====================
+// Middleware
+// =====================
 app.use(
   cors({
     origin: ["http://localhost:5173", "http://localhost:5174"],
     credentials: true,
   })
 );
-
 app.use(express.json());
 
-
-app.use("/api/user", userRoutes);
-app.use("/api/trips", tripRoutes);
-
-app.use("/api/subscription", SubscriptionRoute);
-
-const cors = require('cors');
-const settingRoutes = require('./routes/settingRoutes');
-
-// Routes
-const userRoutes = require('./routes/settingRoutes');
-const authRoutes = require('./routes/authRoutes');
-const tripRoutes = require("./routes/tripRoutes");
-const securityRoutes = require("./routes/securityRoutes");
-
-const { connectDB, sequelize } = require('./database/database');
-
-const app = express();
-const PORT = process.env.PORT || 5000;
-
-// Middleware
-app.use(express.json());
-app.use(cors());
-
-// Root routeb
-
+// =====================
+// Routes Mounting
+// =====================
 app.get("/", (req, res) => {
   res.json({ message: "Welcome to TravelCast API" });
 });
 
+app.use("/api/auth", authRoutes);
+app.use("/api/trips", tripRoutes);
+app.use("/api/subscription", subscriptionRoutes);
+app.use("/api/settings", settingRoutes);
+app.use("/api/security", securityRoutes);
+app.use("/api/dashboard", dashboardRoutes);
+app.use("/api/packing", packingRoutes); 
 
+// =====================
+// Seed Subscription Plans
+// =====================
 async function seedPlans() {
   const plans = await SubscriptionPlan.findAll();
 
   if (plans.length === 0) {
     await SubscriptionPlan.bulkCreate([
-      { id: 1, name: "Basic", price: 200, duration: "monthly" },
-      { id: 2, name: "Standard", price: 400, duration: "monthly" },
-      { id: 3, name: "Premium", price: 700, duration: "monthly" },
+      { name: "Basic", price: 200, duration: "monthly" },
+      { name: "Standard", price: 400, duration: "monthly" },
+      { name: "Premium", price: 700, duration: "monthly" },
     ]);
-
     console.log("Subscription plans seeded");
   } else {
     console.log("Subscription plans already exist");
   }
 }
 
-
+// =====================
+// Start Server
+// =====================
 const startServer = async () => {
   try {
     await connectDB();
-    console.log(" Database connected");
+    console.log("Database connected");
 
+    // Initial sync (without altering NOT NULL columns)
     await sequelize.sync();
-    console.log(" Models synced");
+    console.log("Models initially synced");
 
-    await seedPlans(); 
+    // =====================
+    // Fix trips.user_id safely
+    // =====================
+    await sequelize.query(`
+      ALTER TABLE trips ADD COLUMN IF NOT EXISTS user_id INTEGER;
+    `);
+
+    await sequelize.query(`
+      UPDATE trips SET user_id = 1 WHERE user_id IS NULL;
+    `);
+
+    await sequelize.query(`
+      ALTER TABLE trips ALTER COLUMN user_id SET NOT NULL;
+    `);
+
+    console.log("Trips table user_id column fixed");
+
+    // Seed subscription plans
+    await seedPlans();
 
     app.listen(3000, () => {
-      console.log(" Server is running on port 3000");
+      console.log(`Server running on http://localhost:3000`);
     });
   } catch (error) {
-    console.error(" Server failed to start:", error);
+    console.error("Server failed to start:", error);
+    process.exit(1);
   }
 };
 
 startServer();
-// Mount routes
-app.use('/api/user', authRoutes);       // Auth routes
-app.use('/api', userRoutes);            // User routes
-app.use("/api/trips", tripRoutes);      // Trip routes
-app.use('/api/security', securityRoutes); // Security routes
-
-
-// User routes
-app.use('/api', settingRoutes)
-// app.use('/api', userRoutes);
-app.use("/api/dashboard", require("./routes/dashboardRoutes"));
-
-
-// Connect to database and start server
-connectDB().then(() => {
-  // Sync database models
-  const { sequelize } = require('./database/database');
-  return sequelize.sync({ alter: true }); // Use alter to update existing tables without losing data
-}).then(() => {
-  const PORT = process.env.PORT || 5000;
-  app.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`);
-  });
-}).catch(error => {
-  console.error("Failed to start server:", error);
-  process.exit(1);
-});
-
-// Connect to database and start server
-connectDB()
-  .then(() => {
-    console.log("Database connected...");
-    console.log("Syncing database models...");
-    return sequelize.sync({ alter: true }); // Sync all models
-  })
-  .then(() => {
-    console.log("Database models synced successfully");
-    app.listen(PORT, () => {
-      console.log(`Server running on http://localhost:${PORT}`);
-    });
-  })
-  .catch(error => {
-    console.error('Failed to connect to database:', error);
-    process.exit(1);
-  });

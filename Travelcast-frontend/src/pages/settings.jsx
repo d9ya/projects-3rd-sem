@@ -6,17 +6,19 @@ import {
   BiHome,
   BiPlus,
   BiListCheck,
-  BiHistory,  
+  BiHistory,
   BiBell,
   BiCog,
   BiLogOut,
 } from "react-icons/bi";
+
 import {
   getProfileApi,
   updateProfileApi,
   changePasswordApi,
 } from "../services/api";
 
+// Sidebar Item Component
 const SidebarItem = ({ icon, label, onClick, active }) => (
   <button
     onClick={onClick}
@@ -33,18 +35,12 @@ const Settings = () => {
   const [activeTab, setActiveTab] = useState("profile");
   const [loading, setLoading] = useState(true);
 
-  const [profile, setProfile] = useState({
-    fullName: "",
-    email: "",
-    phoneNumber: "",
-  });
-
+  const [profile, setProfile] = useState({ fullName: "", email: "" });
   const [passwordForm, setPasswordForm] = useState({
     currentPassword: "",
     newPassword: "",
     confirmPassword: "",
   });
-
   const [showPasswords, setShowPasswords] = useState({
     currentPassword: false,
     newPassword: false,
@@ -55,24 +51,39 @@ const Settings = () => {
   const [passwordLoading, setPasswordLoading] = useState(false);
   const [profileError, setProfileError] = useState("");
   const [passwordError, setPasswordError] = useState("");
+  const [fetchError, setFetchError] = useState("");
 
+  // Fetch profile on mount
   useEffect(() => {
     const fetchProfile = async () => {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        navigate("/login");
+        return;
+      }
+
       try {
         const res = await getProfileApi();
         if (res.data.success) {
-          setProfile(res.data.data);
+          setProfile({
+            fullName: res.data.data.fullName,
+            email: res.data.data.email,
+          });
+        } else {
+          setFetchError(res.data.message || "Failed to fetch profile");
         }
       } catch (err) {
-        localStorage.removeItem("token");
-        navigate("/login");
+        console.error(err);
+        setFetchError("Unable to fetch profile. Please login again.");
       } finally {
         setLoading(false);
       }
     };
+
     fetchProfile();
   }, [navigate]);
 
+  // Handle Profile Submit
   const handleProfileSubmit = async (e) => {
     e.preventDefault();
     setProfileLoading(true);
@@ -83,15 +94,17 @@ const Settings = () => {
       if (res.data.success) {
         toast.success("Profile updated successfully!");
       } else {
-        setProfileError(res.data.message);
+        setProfileError(res.data.message || "Failed to update profile");
       }
-    } catch {
+    } catch (err) {
+      console.error(err);
       toast.error("Server error updating profile");
     } finally {
       setProfileLoading(false);
     }
   };
 
+  // Handle Password Submit
   const handlePasswordSubmit = async (e) => {
     e.preventDefault();
     setPasswordLoading(true);
@@ -104,12 +117,7 @@ const Settings = () => {
     }
 
     try {
-      const res = await changePasswordApi({
-        currentPassword: passwordForm.currentPassword,
-        newPassword: passwordForm.newPassword,
-        confirmPassword: passwordForm.confirmPassword,
-      });
-
+      const res = await changePasswordApi(passwordForm);
       if (res.data.success) {
         toast.success("Password changed successfully!");
         setPasswordForm({
@@ -121,9 +129,8 @@ const Settings = () => {
         toast.error(res.data.message || "Failed to change password");
       }
     } catch (err) {
-      toast.error(
-        err.response?.data?.message || "Server error. Please try again."
-      );
+      console.error(err);
+      toast.error(err.response?.data?.message || "Server error. Please try again.");
     } finally {
       setPasswordLoading(false);
     }
@@ -139,7 +146,7 @@ const Settings = () => {
 
   return (
     <div className="flex h-screen bg-[#e3e7f6ff]">
-      {/* SIDEBAR */}
+      {/* Sidebar */}
       <div className="w-[250px] bg-[rgb(184,211,240)] p-6 flex flex-col">
         <div className="mb-10">
           <h2 className="text-xl font-semibold">Travel Cast</h2>
@@ -147,32 +154,12 @@ const Settings = () => {
         </div>
 
         <div className="flex-1 space-y-3">
-          <SidebarItem
-            icon={<BiHome />}
-            label="Home"
-            onClick={() => navigate("/userdashboard")}
-          />
-          <SidebarItem
-            icon={<BiPlus />}
-            label="Create New Trip"
-            onClick={() => navigate("/createTrip")}
-          />
-          <SidebarItem
-            icon={<BiListCheck />}
-            label="Packing List"
-            onClick={() => navigate("/packing")}
-          />
-          <SidebarItem
-            icon={<BiHistory />}
-            label="Trip History"
-            onClick={() => navigate("/tripHistory")}
-          />
-          <SidebarItem
-            icon={<BiBell />}
-            label="Subscription"
-            onClick={() => navigate("/subscription")}
-          />
-          <SidebarItem icon={<BiCog />} label="Settings" active />
+          <SidebarItem icon={<BiHome />} label="Home" onClick={() => navigate("/userdashboard")} />
+          <SidebarItem icon={<BiPlus />} label="Create New Trip" onClick={() => navigate("/createTrip")} />
+          <SidebarItem icon={<BiListCheck />} label="Packing List" onClick={() => navigate("/packing")} />
+          <SidebarItem icon={<BiHistory />} label="Trip History" onClick={() => navigate("/tripHistory")} />
+          <SidebarItem icon={<BiBell />} label="Subscription" onClick={() => navigate("/subscription")} />
+          <SidebarItem icon={<BiCog />} label="Settings" onClick={() => setActiveTab("profile")} active={true} />
         </div>
 
         <SidebarItem
@@ -185,14 +172,15 @@ const Settings = () => {
         />
       </div>
 
+      {/* Main Content */}
       <div className="flex-1 p-8 overflow-y-auto">
         <div className="max-w-[900px] mx-auto mt-6 font-sans">
           <div className="bg-white p-5 rounded-lg mb-6 shadow-sm">
-            <h1 className="text-[28px] font-semibold mb-1">
-              Profile Settings
-            </h1>
+            <h1 className="text-[28px] font-semibold mb-1">Profile Settings</h1>
             <p className="text-gray-600">Manage your account</p>
           </div>
+
+          {fetchError && <p className="text-red-600 mb-4 text-center">{fetchError}</p>}
 
           <div className="flex gap-6 mb-8 border-b border-gray-200">
             <button
@@ -218,6 +206,7 @@ const Settings = () => {
             </button>
           </div>
 
+          {/* Profile Tab */}
           {activeTab === "profile" && (
             <div className="bg-white border border-gray-200 rounded-xl p-6 mb-8 shadow-sm">
               <form onSubmit={handleProfileSubmit}>
@@ -228,10 +217,7 @@ const Settings = () => {
                     placeholder="Full Name"
                     value={profile.fullName}
                     onChange={(e) =>
-                      setProfile({
-                        ...profile,
-                        fullName: e.target.value,
-                      })
+                      setProfile({ ...profile, fullName: e.target.value })
                     }
                   />
                   <input
@@ -240,25 +226,12 @@ const Settings = () => {
                     placeholder="Email"
                     value={profile.email}
                     onChange={(e) =>
-                      setProfile({
-                        ...profile,
-                        email: e.target.value,
-                      })
-                    }
-                  />
-                  <input
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md outline-none focus:ring-2 focus:ring-blue-500"
-                    name="phoneNumber"
-                    placeholder="Phone Number"
-                    value={profile.phoneNumber}
-                    onChange={(e) =>
-                      setProfile({
-                        ...profile,
-                        phoneNumber: e.target.value,
-                      })
+                      setProfile({ ...profile, email: e.target.value })
                     }
                   />
                 </div>
+
+                {profileError && <p className="text-red-600 mb-3">{profileError}</p>}
 
                 <button className="bg-blue-500 text-white px-5 py-2 rounded-md hover:bg-blue-600 transition">
                   {profileLoading ? "Saving..." : "Save Changes"}
@@ -267,18 +240,13 @@ const Settings = () => {
             </div>
           )}
 
+          {/* Password Tab */}
           {activeTab === "password" && (
             <div className="bg-white border border-gray-200 rounded-xl p-6 mb-8 shadow-sm">
-              {passwordError && (
-                <p className="text-red-600 mb-3">{passwordError}</p>
-              )}
+              {passwordError && <p className="text-red-600 mb-3">{passwordError}</p>}
 
               <form onSubmit={handlePasswordSubmit}>
-                {[
-                  "currentPassword",
-                  "newPassword",
-                  "confirmPassword",
-                ].map((field) => (
+                {["currentPassword", "newPassword", "confirmPassword"].map((field) => (
                   <div key={field} className="relative mb-5">
                     <input
                       className="w-full px-3 py-2 border border-gray-300 rounded-md outline-none focus:ring-2 focus:ring-blue-500"
@@ -286,19 +254,13 @@ const Settings = () => {
                       placeholder={field}
                       value={passwordForm[field]}
                       onChange={(e) =>
-                        setPasswordForm({
-                          ...passwordForm,
-                          [field]: e.target.value,
-                        })
+                        setPasswordForm({ ...passwordForm, [field]: e.target.value })
                       }
                     />
                     <span
                       className="absolute right-3 top-1/2 -translate-y-1/2 cursor-pointer text-gray-500"
                       onClick={() =>
-                        setShowPasswords({
-                          ...showPasswords,
-                          [field]: !showPasswords[field],
-                        })
+                        setShowPasswords({ ...showPasswords, [field]: !showPasswords[field] })
                       }
                     >
                       {showPasswords[field] ? <FaEye /> : <FaEyeSlash />}

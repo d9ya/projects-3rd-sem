@@ -6,16 +6,16 @@ import {
   deletePackingItemsApi,
   savePackingNotesApi,
 } from "../services/api";
-
+ 
 const Packing = () => {
   const [items, setItems] = useState([]);
   const [newItem, setNewItem] = useState("");
   const [notes, setNotes] = useState("");
-
+ 
   useEffect(() => {
     fetchPackingItems();
   }, []);
-
+ 
   const fetchPackingItems = async () => {
     try {
       const res = await getPackingApi();
@@ -24,7 +24,7 @@ const Packing = () => {
       console.error("Fetch error:", err);
     }
   };
-
+ 
   const addItem = async () => {
     if (!newItem.trim()) return;
     try {
@@ -35,7 +35,7 @@ const Packing = () => {
       console.error("Add error:", err);
     }
   };
-
+ 
   const toggleSelect = async (item) => {
     try {
       await updatePackingItemApi(item.id, {
@@ -52,17 +52,17 @@ const Packing = () => {
       console.error("Update error:", err);
     }
   };
-
+ 
   const deleteItems = async () => {
     const idsToDelete = items
       .filter((item) => item.is_checked)
       .map((item) => item.id);
-
+ 
     if (idsToDelete.length === 0) {
       alert("Select items to delete");
       return;
     }
-
+ 
     try {
       await deletePackingItemsApi(idsToDelete);
       setItems(items.filter((item) => !idsToDelete.includes(item.id)));
@@ -70,7 +70,7 @@ const Packing = () => {
       console.error("Delete error:", err);
     }
   };
-
+ 
   const saveList = async () => {
     try {
       await savePackingNotesApi({ notes });
@@ -80,24 +80,24 @@ const Packing = () => {
       alert("⚠ Failed to save packing list");
     }
   };
-
+ 
   return (
-    
+   
     <div className="min-h-screen bg-blue-200 font-['Poppins'] flex flex-col items-center justify-start py-10">
-
+ 
       {/* Page Container */}
       <div className="max-w-5xl w-full mx-auto rounded-3xl overflow-hidden bg-white/70 backdrop-blur-xl border border-white/30 shadow-2xl">
-
+ 
         {/* Header */}
         <div className="bg-gradient-to-r from-slate-900 via-slate-800 to-slate-700 px-12 py-12 text-center text-white">
           <h1 className="text-4xl font-extrabold drop-shadow-md">
             Craft Your Packing List
           </h1>
         </div>
-
+ 
         {/* Content */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 p-10">
-
+ 
           {/* Must-Haves */}
           <div className="bg-white rounded-2xl p-6 shadow-md border border-slate-200 flex flex-col">
             <div className="flex justify-between items-center mb-5">
@@ -112,7 +112,7 @@ const Packing = () => {
                 🗑️
               </button>
             </div>
-
+ 
             <ul className="space-y-3 max-h-80 overflow-y-auto">
               {items.map((item) => (
                 <li
@@ -138,7 +138,7 @@ const Packing = () => {
               ))}
             </ul>
           </div>
-
+ 
           {/* Notes */}
           <div className="bg-white rounded-2xl p-6 shadow-md border border-slate-200 flex flex-col">
             <h2 className="text-lg font-bold text-slate-700 mb-5">
@@ -152,7 +152,7 @@ const Packing = () => {
             />
           </div>
         </div>
-
+ 
         {/* Add Item */}
         <div className="flex gap-4 px-10 pb-6">
           <input
@@ -168,7 +168,7 @@ const Packing = () => {
             Add Item
           </button>
         </div>
-
+ 
         {/* Save Button */}
         <button
           onClick={saveList}
@@ -180,5 +180,5 @@ const Packing = () => {
     </div>
   );
 };
-
+ 
 export default Packing;

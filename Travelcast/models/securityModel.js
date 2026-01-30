@@ -1,6 +1,6 @@
 const { DataTypes } = require("sequelize");
-const { sequelize } = require("../database/database"); 
-
+const { sequelize } = require("../database/database");
+ 
 const SecurityAnswer = sequelize.define(
   "SecurityAnswer",
   {
@@ -12,7 +12,7 @@ const SecurityAnswer = sequelize.define(
     user_id: {
       type: DataTypes.INTEGER,
       allowNull: false,
-      unique: true, 
+      unique: true,
     },
     question1: {
       type: DataTypes.STRING,
@@ -57,20 +57,21 @@ const SecurityAnswer = sequelize.define(
     underscored: true,
   }
 );
-
-
-SecurityAnswer.setupSecurityAnswer = async (userId, Q1, Ans1, Q2, Ans2, Q3, Ans3, Q4, Ans4) => {
-  await SecurityAnswer.create({
-    user_id: userId,
-    question1: Q1,
-    answer1: Ans1,
-    question2: Q2,
-    answer2: Ans2,
-    question3: Q3,
-    answer3: Ans3,
-    question4: Q4,
-    answer4: Ans4,
+ 
+ 
+SecurityAnswer.setupSecurityAnswer = async (data) => {
+  // upsert will Update if the user_id exists, or Insert if it doesn't
+  return await SecurityAnswer.upsert({
+    user_id: data.userId,
+    question1: data.question1,
+    answer1: data.answer1,
+    question2: data.question2,
+    answer2: data.answer2,
+    question3: data.question3,
+    answer3: data.answer3,
+    question4: data.question4,
+    answer4: data.answer4,
   });
 };
-
+ 
 module.exports = SecurityAnswer;

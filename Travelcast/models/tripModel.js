@@ -1,49 +1,21 @@
+// tripModel.js
 const { DataTypes } = require("sequelize");
 const { sequelize } = require("../database/database");
+const User = require("./userModel");
 
-const Trip = sequelize.define(
-  "Trip",
-  {
-    id: {
-      type: DataTypes.INTEGER,
-      autoIncrement: true,
-      primaryKey: true,
-    },
-    name: {
-      type: DataTypes.STRING,
-      allowNull: false,
-    },
-    destination: {
-      type: DataTypes.STRING,
-      allowNull: false,
-    },
-    startDate: {
-      type: DataTypes.DATEONLY,
-      allowNull: false,
-    },
-    endDate: {
-      type: DataTypes.DATEONLY,
-      allowNull: false,
-    },
-    travelers: {
-      type: DataTypes.INTEGER,
-      defaultValue: 1,
-    },
-    note: {
-      type: DataTypes.TEXT,
-    },
-    weather: {
-      type: DataTypes.STRING,
-    },
+const Trip = sequelize.define("Trip", {
+  name: { type: DataTypes.STRING, allowNull: false },
+  destination: { type: DataTypes.STRING, allowNull: false },
+  startDate: { type: DataTypes.DATE, allowNull: false },
+  endDate: { type: DataTypes.DATE, allowNull: false },
+  travelers: { type: DataTypes.STRING },
+  note: { type: DataTypes.TEXT },
+  weather: { type: DataTypes.STRING },
+  userId: { type: DataTypes.INTEGER, allowNull: false },
+});
 
-    temp: {
-      type: DataTypes.STRING,
-    },
-  },
-  {
-    tableName: "trips",
-    timestamps: true,
-  }
-);
+// Associations
+Trip.belongsTo(User, { foreignKey: "userId" });
+User.hasMany(Trip, { foreignKey: "userId" });
 
 module.exports = Trip;

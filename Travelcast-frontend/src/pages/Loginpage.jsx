@@ -43,8 +43,7 @@ export default function LoginPage() {
             }
 
 
-            setTimeout(() => navigate("/Subscription"), 1000);
-            // ✅ NAVIGATE TO SUBSCRIPTION PAGE
+           
             setTimeout(() => navigate("/userdashboard"), 1000);
 
 

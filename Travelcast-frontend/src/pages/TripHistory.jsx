@@ -12,29 +12,68 @@ const TripHistory = () => {
   const [editTrip, setEditTrip] = useState(null);
   const [saving, setSaving] = useState(false);
 
+  // ---------------------------
+  // Fetch all trips with JWT
+  // ---------------------------
   useEffect(() => {
-    fetch("http://localhost:3000/api/trips/all")
-      .then((res) => res.json())
-      .then((data) => {
-        setTrips(data);
-        setLoading(false);
-      })
-      .catch(() => setLoading(false));
-  }, []);
+    const fetchTrips = async () => {
+      const token = localStorage.getItem("token"); // Get JWT token
+      if (!token) {
+        alert("You must be logged in to view trips");
+        navigate("/login");
+        return;
+      }
 
+      try {
+        const res = await fetch("http://localhost:3000/api/trips/all", {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`, // <-- send token
+          },
+        });
+
+        if (!res.ok) {
+          if (res.status === 401) {
+            alert("Session expired. Please login again.");
+            localStorage.clear();
+            navigate("/login");
+          }
+          throw new Error("Failed to fetch trips");
+        }
+
+        const data = await res.json();
+        setTrips(data);
+      } catch (err) {
+        console.error("Fetch trips error:", err);
+        alert("Could not load trips");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchTrips();
+  }, [navigate]);
+
+  // ---------------------------
+  // Delete trip
+  // ---------------------------
   const handleDelete = async (id) => {
     if (!window.confirm("Delete this trip permanently?")) return;
 
-    try {
-      const res = await fetch(
-        `http://localhost:3000/api/trips/delete/${id}`,
-        { method: "DELETE" }
-      );
+    const token = localStorage.getItem("token");
+    if (!token) {
+      alert("You must be logged in to delete trips");
+      navigate("/login");
+      return;
+    }
 
-      if (!res.ok) {
-        alert("Delete failed");
-        return;
-      }
+    try {
+      const res = await fetch(`http://localhost:3000/api/trips/delete/${id}`, {
+        method: "DELETE",
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      if (!res.ok) throw new Error("Delete failed");
 
       setTrips((prev) => prev.filter((trip) => trip.id !== id));
     } catch (err) {
@@ -43,6 +82,9 @@ const TripHistory = () => {
     }
   };
 
+  // ---------------------------
+  // Update trip
+  // ---------------------------
   const handleUpdate = async () => {
     if (new Date(editTrip.startDate) > new Date(editTrip.endDate)) {
       alert("Start date cannot be after end date!");
@@ -50,11 +92,20 @@ const TripHistory = () => {
     }
 
     setSaving(true);
+    const token = localStorage.getItem("token");
+    if (!token) {
+      alert("You must be logged in to edit trips");
+      navigate("/login");
+      return;
+    }
 
     try {
       const res = await fetch(`http://localhost:3000/api/trips/update/${editTrip.id}`, {
         method: "PUT",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`, // <-- send token
+        },
         body: JSON.stringify(editTrip),
       });
 
@@ -114,7 +165,6 @@ const TripHistory = () => {
           <div className="flex justify-center mb-8">
             <img src="/logo.png" alt="Travel Cast" className="w-24 h-auto mx-auto mb-5" />
           </div>
-
           <div className="flex flex-col gap-4">
             <SidebarButton icon={<FiHome />} label="Home" onClick={() => navigate("/userdashboard")} />
             <SidebarButton icon={<FiPlus />} label="Create New Trip" onClick={() => navigate("/createTrip")} />
@@ -152,15 +202,12 @@ const TripHistory = () => {
                   <span>{trip.weather}</span>
                 </div>
               </div>
-
               <div className="flex gap-5 mt-2 text-sm">
                 <span>{trip.startDate} → {trip.endDate}</span>
                 <span>{trip.travelers} Travelers</span>
               </div>
-
               <p className="mt-2">📍 {trip.destination}</p>
               <p className="mt-2 text-gray-700">{trip.note || "No notes added."}</p>
-
               <div className="flex gap-3 justify-end mt-3">
                 <button
                   className="bg-blue-50 px-3 py-2 rounded-lg flex items-center gap-1"
@@ -185,7 +232,6 @@ const TripHistory = () => {
         <div className="fixed inset-0 bg-black/40 flex justify-center items-center">
           <div className="bg-white p-6 rounded-2xl w-80">
             <h3 className="text-lg font-semibold mb-3">Edit Trip</h3>
-
             <input
               type="text"
               className="w-full p-2 mb-3 rounded border border-gray-300"
@@ -204,7 +250,6 @@ const TripHistory = () => {
               value={editTrip.endDate}
               onChange={(e) => setEditTrip({ ...editTrip, endDate: e.target.value })}
             />
-
             <div className="flex gap-2 justify-end">
               <button
                 className="px-3 py-2 bg-blue-200 rounded hover:bg-blue-300"

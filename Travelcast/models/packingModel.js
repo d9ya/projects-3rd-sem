@@ -1,6 +1,6 @@
 const { DataTypes } = require("sequelize");
 const { sequelize } = require("../database/database");
-
+ 
 const PackingItem = sequelize.define(
   "PackingItem",
   {
@@ -25,15 +25,16 @@ const PackingItem = sequelize.define(
       type: DataTypes.DATE,
       allowNull: true,
     },
-    notes: { 
-      type: DataTypes.TEXT, 
+    notes: {
+      type: DataTypes.TEXT,
       allowNull: true },
   },
   {
     tableName: "packing_items",
     timestamps: false,
-    underscored: true           
+    underscored: true          
   }
 );
-
+ 
 module.exports = PackingItem;
+ 
