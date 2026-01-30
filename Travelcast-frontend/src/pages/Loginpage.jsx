@@ -10,13 +10,14 @@ export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-//comment
+
   const navigate = useNavigate();
 
   const handleLogin = async (e) => {
     e.preventDefault();
     if (loading) return;
 
+    // ✅ Validation
     if (!email || !email.includes("@")) {
       return setError("Please enter a valid email.");
     }
@@ -34,18 +35,20 @@ export default function LoginPage() {
         {
           loading: "Logging in...",
           success: (res) => {
+            // ✅ Save token if exists
             if (res?.data?.token) {
               localStorage.setItem("token", res.data.token);
             }
 
+            // ✅ Save full user object
             if (res?.data?.user) {
               localStorage.setItem("user", JSON.stringify(res.data.user));
+              // ✅ Save userId separately for pages like CreateTrip
+              localStorage.setItem("userId", res.data.user.id);
             }
 
-
-           
-            setTimeout(() => navigate("/userdashboard"), 1000);
-
+            // ✅ Redirect after successful login
+            setTimeout(() => navigate("/userdashboard"), 500);
 
             return res?.data?.message || "Login successful!";
           },
@@ -55,7 +58,7 @@ export default function LoginPage() {
         }
       );
     } catch (err) {
-      console.error(err);
+      console.error("Login error:", err);
     } finally {
       setLoading(false);
     }
@@ -63,7 +66,6 @@ export default function LoginPage() {
 
   return (
     <div className="min-h-screen w-full flex items-center justify-center bg-[url('/backgroundimg.png')] bg-cover bg-center font-sans relative">
-      
       {/* Logo */}
       <img
         src="logo.png"
@@ -73,18 +75,14 @@ export default function LoginPage() {
 
       {/* Card */}
       <div className="w-[500px] px-10 py-10 rounded-[60px] bg-white/25 backdrop-blur-xl shadow-2xl text-center">
-        
         <h2 className="text-2xl font-bold text-gray-800 mb-2">Login</h2>
-        <p className="text-sm text-gray-700 mb-6">
-          Welcome to Travelcast
-        </p>
+        <p className="text-sm text-gray-700 mb-6">Welcome to Travelcast</p>
 
         {error && (
           <p className="text-red-500 text-sm mb-3">{error}</p>
         )}
 
         <form onSubmit={handleLogin} className="space-y-4">
-          
           {/* Email */}
           <input
             type="email"

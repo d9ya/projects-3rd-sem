@@ -1,8 +1,6 @@
 const { DataTypes } = require("sequelize");
 const { sequelize } = require("../database/database");
-const bcrypt = require("bcryptjs");
-
-
+ 
 const User = sequelize.define(
   "User",
   {
@@ -36,20 +34,6 @@ const User = sequelize.define(
       type: DataTypes.STRING,
       allowNull: false,
     },
-    
-    phoneNumber: {
-      type: DataTypes.STRING,
-      allowNull: true,
-      defaultValue: null
-    },
-    fullName: {
-      type: DataTypes.STRING,
-      allowNull: true,
-      defaultValue: null,
-      set(value) {
-        this.setDataValue("fullName", value?.trim());
-      },
-    },
     role: {
       type: DataTypes.ENUM("user", "admin"),
       allowNull: false,
@@ -69,68 +53,13 @@ const User = sequelize.define(
       allowNull: true,
       defaultValue: null,
     },
-    subscription: {
-      type: DataTypes.JSON,
-      defaultValue: {
-        planId: null,
-        startDate: null,
-        status: 'inactive'
-      }
-    },
   },
   {
     tableName: "users",
     timestamps: true,
-    // indexes: [
-    //   {
-    //     unique: true,
-    //     fields: ['phoneNumber']
-    //   }
-    // ]
   }
 );
-
-// Hash password before saving
-User.beforeCreate(async (user) => {
-  if (user.password) {
-    const bcrypt = require('bcryptjs');
-    const saltRounds = parseInt(process.env.BCRYPT_SALT_ROUNDS) || 12;
-    user.password = await bcrypt.hash(user.password, saltRounds);
-  }
-});
-
-User.beforeUpdate(async (user) => {
-  if (user.changed('password')) {
-    const bcrypt = require('bcryptjs');
-    const saltRounds = parseInt(process.env.BCRYPT_SALT_ROUNDS) || 12;
-    user.password = await bcrypt.hash(user.password, saltRounds);
-  }
-});
-
-
-
-// Instance method to compare password
-User.prototype.comparePassword = async function(candidatePassword) {
-  const bcrypt = require('bcryptjs');
-  
-  // Check if password exists and is not undefined
-  if (!this.password) {
-    throw new Error('Password not found for user');
-  }
-  
-  return await bcrypt.compare(candidatePassword, this.password);
-};
-
-// Add unique constraint for phoneNumber after model definition
-User.addHook('afterSync', async () => {
-  try {
-    await sequelize.queryInterface.addConstraint('users', {
-      fields: ['phoneNumber'],
-      type: 'unique',
-      name: 'users_phone_number_unique'
-    });
-  } catch (error) {
-  }
-});
-
+ 
 module.exports = User;
+ 
+ 

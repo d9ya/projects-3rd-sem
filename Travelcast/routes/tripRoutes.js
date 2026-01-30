@@ -7,4 +7,4 @@ router.get("/all", getAllTrips);
 router.delete("/delete/:id", deleteTrip);
 router.put("/update/:id", updateTrip);
  
-module.exports = router;
+module. exports = router;

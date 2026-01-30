@@ -4,6 +4,7 @@ import { saveSecurityAnswersApi } from "../services/api.js";
 
 function Security() {
   const navigate = useNavigate();
+
   const [answers, setAnswers] = useState({
     q1: "",
     q2: "",
