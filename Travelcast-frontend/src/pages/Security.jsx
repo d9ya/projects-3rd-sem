@@ -1,291 +1,137 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { FaEye, FaEyeSlash } from "react-icons/fa";
-import toast from "react-hot-toast";
-import {
-  BiHome,
-  BiPlus,
-  BiListCheck,
-  BiHistory,
-  BiCog,
-  BiLogOut,
-} from "react-icons/bi";
-import {
-  getProfileApi,
-  updateProfileApi,
-  changePasswordApi,
-} from "../services/api";
-
-const SidebarItem = ({ icon, label, onClick, active }) => (
-  <button
-    onClick={onClick}
-    className={`flex items-center gap-4 w-full h-[52px] px-5 rounded-xl transition
-      ${active ? "bg-white shadow-md" : "hover:bg-white shadow-sm"}`}
-  >
-    <span className="text-xl">{icon}</span>
-    <span className="text-sm font-medium">{label}</span>
-  </button>
-);
-
-const Settings = () => {
+import { saveSecurityAnswersApi } from "../services/api.js";
+ 
+function Security() {
   const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState("profile");
-  const [loading, setLoading] = useState(true);
-
-  const [profile, setProfile] = useState({
-    fullName: "",
-    email: "",
+  const [answers, setAnswers] = useState({
+    q1: "",
+    q2: "",
+    q3: "",
+    q4: "",
   });
-
-  const [passwordForm, setPasswordForm] = useState({
-    currentPassword: "",
-    newPassword: "",
-    confirmPassword: "",
-  });
-
-  const [showPasswords, setShowPasswords] = useState({
-    currentPassword: false,
-    newPassword: false,
-    confirmPassword: false,
-  });
-
-  const [profileLoading, setProfileLoading] = useState(false);
-  const [passwordLoading, setPasswordLoading] = useState(false);
-  const [profileError, setProfileError] = useState("");
-  const [passwordError, setPasswordError] = useState("");
-  const [fetchError, setFetchError] = useState("");
-
-  // -----------------------------
-  // Fetch user profile on load
-  // -----------------------------
-  useEffect(() => {
-    const fetchProfile = async () => {
-      const token = localStorage.getItem("token");
-      if (!token) {
-        setFetchError("Access token missing. Please login again.");
-        setLoading(false);
-        return;
-      }
-
-      try {
-        const res = await getProfileApi();
-        if (res.data.success) {
-          // Map backend username → frontend fullName
-          setProfile({
-            fullName: res.data.data.username || res.data.data.fullName,
-            email: res.data.data.email,
-          });
-        } else {
-          setFetchError(res.data.message || "Unable to fetch profile. Please login again.");
-        }
-      } catch (err) {
-        console.error(err);
-        setFetchError(err.response?.data?.message || "Unable to fetch profile. Please login again.");
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchProfile();
-  }, []);
-
-  // -----------------------------
-  // Handle Profile Update
-  // -----------------------------
-  const handleProfileSubmit = async (e) => {
-    e.preventDefault();
-    setProfileLoading(true);
-    setProfileError("");
-
-    try {
-      const res = await updateProfileApi({
-        username: profile.fullName, // map fullName → backend username
-        email: profile.email,
-      });
-
-      if (res.data.success) {
-        toast.success("Profile updated successfully!");
-      } else {
-        setProfileError(res.data.message || "Failed to update profile");
-      }
-    } catch (err) {
-      console.error(err);
-      toast.error("Server error updating profile");
-    } finally {
-      setProfileLoading(false);
-    }
+ 
+  const handleChange = (e) => {
+    setAnswers({
+      ...answers,
+      [e.target.name]: e.target.value,
+    });
   };
-
-  // -----------------------------
-  // Handle Password Update
-  // -----------------------------
-  const handlePasswordSubmit = async (e) => {
-    e.preventDefault();
-    setPasswordLoading(true);
-    setPasswordError("");
-
-    if (passwordForm.newPassword !== passwordForm.confirmPassword) {
-      setPasswordError("New password and confirm password do not match");
-      setPasswordLoading(false);
+ 
+  const handleSave = async () => {
+    const userId = localStorage.getItem("newUserId");
+ 
+    if (!userId) {
+      alert("User ID not found! Please come from registration page.");
       return;
     }
-
+ 
+    if (!answers.q1 || !answers.q2 || !answers.q3 || !answers.q4) {
+      alert("Please fill all fields!");
+      return;
+    }
+ 
     try {
-      const res = await changePasswordApi({
-        currentPassword: passwordForm.currentPassword,
-        newPassword: passwordForm.newPassword,
-        confirmPassword: passwordForm.confirmPassword,
+      const res = await saveSecurityAnswersApi({
+        userId,
+        question1: "What is your favourite food?",
+        answer1: answers.q1,
+        question2: "What is your favourite place to visit?",
+        answer2: answers.q2,
+        question3: "What is your favourite weather?",
+        answer3: answers.q3,
+        question4: "What is your birthplace?",
+        answer4: answers.q4,
       });
-
-      if (res.data.success) {
-        toast.success("Password changed successfully!");
-        setPasswordForm({
-          currentPassword: "",
-          newPassword: "",
-          confirmPassword: "",
-        });
-      } else {
-        setPasswordError(res.data.message || "Failed to change password");
-      }
-    } catch (err) {
-      console.error(err);
-      setPasswordError(err.response?.data?.message || "Server error. Please try again.");
-    } finally {
-      setPasswordLoading(false);
+ 
+      alert(res.data.message || "Security answers saved successfully!");
+ 
+      localStorage.removeItem("newUserId");
+      navigate("/login");
+    } catch (error) {
+      console.error("Security save error:", error);
+      alert(
+        error.response?.data?.message ||
+          "Something went wrong while saving security answers"
+      );
     }
   };
-
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center h-screen text-lg font-medium">
-        Loading...
-      </div>
-    );
-  }
-
+ 
   return (
-    <div className="flex h-screen bg-[#e3e7f6ff]">
-      {/* SIDEBAR */}
-      <div className="w-[250px] bg-[rgb(184,211,240)] p-6 flex flex-col">
-        <div className="mb-10">
-          <h2 className="text-xl font-semibold">Travel Cast</h2>
-          <p className="text-xs">Your Journey Starts</p>
-        </div>
-
-        <div className="flex-1 space-y-3">
-          <SidebarItem icon={<BiHome />} label="Home" onClick={() => navigate("/userdashboard")} />
-          <SidebarItem icon={<BiPlus />} label="Create New Trip" onClick={() => navigate("/createTrip")} />
-          <SidebarItem icon={<BiListCheck />} label="Packing List" onClick={() => navigate("/packing")} />
-          <SidebarItem icon={<BiHistory />} label="Trip History" onClick={() => navigate("/tripHistory")} />
-          <SidebarItem icon={<BiCog />} label="Settings" onClick={() => setActiveTab("profile")} active={true} />
-        </div>
-
-        <SidebarItem
-          icon={<BiLogOut />}
-          label="Logout"
-          onClick={() => {
-            localStorage.removeItem("token");
-            navigate("/login");
-          }}
+    <div
+      className="min-h-screen p-10 flex flex-col items-end justify-start font-sans relative bg-cover bg-center bg-no-repeat bg-fixed"
+      style={{ backgroundImage: "url('background.jpeg')" }}
+    >
+      {/* Logo */}
+      <img
+        src="logo.png"
+        alt="Logo"
+        className="absolute top-5 left-5 w-32 opacity-90"
+      />
+ 
+      {/* Box */}
+      <div className="w-[450px] bg-white/40 backdrop-blur-md p-8 rounded-xl flex flex-col text-black">
+        <h1 className="text-3xl font-bold text-center mb-5">
+          Security Questions
+        </h1>
+ 
+        <label className="mt-3 text-sm font-medium">
+          Q1: What is your favourite food?
+        </label>
+        <input
+          type="text"
+          name="q1"
+          value={answers.q1}
+          onChange={handleChange}
+          placeholder="Enter answer"
+          className="mt-1 p-2.5 rounded-md border-2 border-white bg-transparent text-black outline-none text-sm focus:border-sky-400 focus:ring-2 focus:ring-sky-400/40 transition"
         />
-      </div>
-
-      {/* MAIN CONTENT */}
-      <div className="flex-1 p-8 overflow-y-auto">
-        <div className="max-w-[900px] mx-auto mt-6 font-sans">
-          <div className="bg-white p-5 rounded-lg mb-6 shadow-sm">
-            <h1 className="text-[28px] font-semibold mb-1">Profile Settings</h1>
-            <p className="text-gray-600">Manage your account</p>
-          </div>
-
-          {fetchError && <p className="text-red-600 mb-4 text-center">{fetchError}</p>}
-
-          {/* Tabs */}
-          <div className="flex gap-6 mb-8 border-b border-gray-200">
-            <button
-              className={`pb-2 text-[15px] font-medium transition ${
-                activeTab === "profile" ? "text-black border-b-2 border-blue-500" : "text-gray-500 hover:text-black"
-              }`}
-              onClick={() => setActiveTab("profile")}
-            >
-              Profile
-            </button>
-            <button
-              className={`pb-2 text-[15px] font-medium transition ${
-                activeTab === "password" ? "text-black border-b-2 border-blue-500" : "text-gray-500 hover:text-black"
-              }`}
-              onClick={() => setActiveTab("password")}
-            >
-              Password
-            </button>
-          </div>
-
-          {/* Profile Form */}
-          {activeTab === "profile" && (
-            <div className="bg-white border border-gray-200 rounded-xl p-6 mb-8 shadow-sm">
-              <form onSubmit={handleProfileSubmit}>
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-5 mb-6">
-                  <input
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md outline-none focus:ring-2 focus:ring-blue-500"
-                    name="fullName"
-                    placeholder="Full Name"
-                    value={profile.fullName}
-                    onChange={(e) => setProfile({ ...profile, fullName: e.target.value })}
-                  />
-                  <input
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md outline-none focus:ring-2 focus:ring-blue-500"
-                    name="email"
-                    placeholder="Email"
-                    value={profile.email}
-                    onChange={(e) => setProfile({ ...profile, email: e.target.value })}
-                  />
-                </div>
-
-                {profileError && <p className="text-red-600 mb-3">{profileError}</p>}
-
-                <button className="bg-blue-500 text-white px-5 py-2 rounded-md hover:bg-blue-600 transition">
-                  {profileLoading ? "Saving..." : "Save Changes"}
-                </button>
-              </form>
-            </div>
-          )}
-
-          {/* Password Form */}
-          {activeTab === "password" && (
-            <div className="bg-white border border-gray-200 rounded-xl p-6 mb-8 shadow-sm">
-              {passwordError && <p className="text-red-600 mb-3">{passwordError}</p>}
-
-              <form onSubmit={handlePasswordSubmit}>
-                {["currentPassword", "newPassword", "confirmPassword"].map((field) => (
-                  <div key={field} className="relative mb-5">
-                    <input
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md outline-none focus:ring-2 focus:ring-blue-500"
-                      type={showPasswords[field] ? "text" : "password"}
-                      placeholder={field}
-                      value={passwordForm[field]}
-                      onChange={(e) =>
-                        setPasswordForm({ ...passwordForm, [field]: e.target.value })
-                      }
-                    />
-                    <span
-                      className="absolute right-3 top-1/2 -translate-y-1/2 cursor-pointer text-gray-500"
-                      onClick={() => setShowPasswords({ ...showPasswords, [field]: !showPasswords[field] })}
-                    >
-                      {showPasswords[field] ? <FaEye /> : <FaEyeSlash />}
-                    </span>
-                  </div>
-                ))}
-
-                <button className="bg-blue-500 text-white px-5 py-2 rounded-md hover:bg-blue-600 transition">
-                  {passwordLoading ? "Updating..." : "Update Password"}
-                </button>
-              </form>
-            </div>
-          )}
-        </div>
+ 
+        <label className="mt-3 text-sm font-medium">
+          Q2: What is your favourite place to visit?
+        </label>
+        <input
+          type="text"
+          name="q2"
+          value={answers.q2}
+          onChange={handleChange}
+          placeholder="Enter answer"
+          className="mt-1 p-2.5 rounded-md border-2 border-white bg-transparent text-black outline-none text-sm focus:border-sky-400 focus:ring-2 focus:ring-sky-400/40 transition"
+        />
+ 
+        <label className="mt-3 text-sm font-medium">
+          Q3: What is your favourite weather?
+        </label>
+        <input
+          type="text"
+          name="q3"
+          value={answers.q3}
+          onChange={handleChange}
+          placeholder="Enter answer"
+          className="mt-1 p-2.5 rounded-md border-2 border-white bg-transparent text-black outline-none text-sm focus:border-sky-400 focus:ring-2 focus:ring-sky-400/40 transition"
+        />
+ 
+        <label className="mt-3 text-sm font-medium">
+          Q4: What is your birthplace?
+        </label>
+        <input
+          type="text"
+          name="q4"
+          value={answers.q4}
+          onChange={handleChange}
+          placeholder="Enter answer"
+          className="mt-1 p-2.5 rounded-md border-2 border-white bg-transparent text-black outline-none text-sm focus:border-sky-400 focus:ring-2 focus:ring-sky-400/40 transition"
+        />
+ 
+        <button
+          onClick={handleSave}
+          className="mt-5 py-3 bg-sky-400 hover:bg-sky-600 text-black text-base rounded-full transition"
+        >
+          Save Answers
+        </button>
       </div>
     </div>
   );
-};
-
-export default Settings;
+}
+ 
+export default Security;

@@ -22,8 +22,8 @@ const Trip = require("./models/tripModel"); // Make sure you have this imported
 // =====================
 const authRoutes = require("./routes/authRoutes");
 const tripRoutes = require("./routes/tripRoutes");
-const subscriptionRoutes = require("./routes/subscriptionRoute");
-const settingRoutes = require("./routes/settingRoutes");
+const subscriptionRoutes = require("./routes/SubscriptionRoute");
+
 const securityRoutes = require("./routes/securityRoutes");
 const dashboardRoutes = require("./routes/dashboardRoutes");
 const packingRoutes = require("./routes/packingRoutes"); 
@@ -49,7 +49,7 @@ app.get("/", (req, res) => {
 app.use("/api/auth", authRoutes);
 app.use("/api/trips", tripRoutes);
 app.use("/api/subscription", subscriptionRoutes);
-app.use("/api/settings", settingRoutes);
+
 app.use("/api/security", securityRoutes);
 app.use("/api/dashboard", dashboardRoutes);
 app.use("/api/packing", packingRoutes); 

@@ -1,1 +1,77 @@
 @import "tailwindcss";
+/* --- Theme variables --- */
+/* --- Light theme --- */
+:root {
+  --bg-color: #fefefe;          /* very light gray */
+  --text-color: #1a1a1a;        /* almost black */
+  --card-bg: #ffffff;            /* pure white for cards */
+  --sidebar-bg: #e0f2fe;        /* soft sky blue */
+  --button-bg: #0ea5e9;         /* cyan-blue */
+  --button-text: #ffffff;
+  --input-bg: #f5f5f5;           /* light gray input */
+  --input-text: #1a1a1a;
+  --link-color: #0ea5e9;        /* links matching button */
+  --shadow-color: rgba(0, 0, 0, 0.1);
+}
+
+/* --- Dark theme --- */
+[data-theme='dark'] {
+  --bg-color: #121212;           /* near black */
+  --text-color: #e5e7eb;        /* light gray */
+  --card-bg: #1e1e1e;            /* darker gray for cards */
+  --sidebar-bg: #1f2937;        /* deep navy-gray */
+  --button-bg: #3b82f6;         /* bright blue pop */
+  --button-text: #ffffff;
+  --input-bg: #2c2c2c;           /* dark input background */
+  --input-text: #e5e7eb;
+  --link-color: #3b82f6;         /* bright links */
+  --shadow-color: rgba(0, 0, 0, 0.5);
+}
+
+/* --- Apply globally --- */
+body {
+  background-color: var(--bg-color);
+  color: var(--text-color);
+  font-family: 'Inter', sans-serif;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.card {
+  background-color: var(--card-bg);
+  color: var(--text-color);
+  box-shadow: 0 4px 8px var(--shadow-color);
+  transition: background-color 0.3s ease, color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.sidebar {
+  background-color: var(--sidebar-bg);
+  color: var(--text-color);
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+button {
+  background-color: var(--button-bg);
+  color: var(--button-text);
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+button:hover {
+  opacity: 0.85;
+}
+
+input, select, textarea {
+  background-color: var(--input-bg);
+  color: var(--input-text);
+  border: 1px solid #cbd5e1; /* soft border in light mode */
+  border-radius: 0.5rem;
+  padding: 0.5rem;
+  outline: none;
+  transition: background-color 0.3s ease, color 0.3s ease, border 0.3s ease;
+}
+
+a {
+  color: var(--link-color);
+  text-decoration: underline;
+}

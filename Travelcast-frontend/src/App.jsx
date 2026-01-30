@@ -4,19 +4,21 @@ import { Toaster } from "react-hot-toast";
 
 import Registerpage from "./pages/Registerpage";
 import LoginPage from "./pages/Loginpage";
-import CreateTripPage from "./pages/CreateTrippage";
+
 
 
 import Subscriptionpage from "./pages/Subscriptionpage";
 import SplashScreen from "./pages/Splashscreen";
 import UserDashboard from "./pages/Userdashboard";
-import Settings from "./pages/settings";
+
 
 import Packing from "./pages/Packing";
 import ProtectedRoute from "./protected/ProtectedRoute";
 
+import CreateTrippage from "./pages/CreateTrippage";
 import Security from "./pages/Security";
 import TripHistory from "./pages/TripHistory";
+import Settings from "./pages/settingpage";
 
 
 
@@ -26,7 +28,7 @@ function App() {
       <Toaster />
       <Routes>
         <Route path="/" element={<SplashScreen />} />
-     
+      <Route path="/settings" element={<Settings />} />
         
        
          <Route path="/subscription" element={<Subscriptionpage/>} />
@@ -36,13 +38,13 @@ function App() {
         <Route path="/register" element={<Registerpage />} />
       
         <Route path="/userdashboard" element={<ProtectedRoute allowedRoles={['user']} element={<UserDashboard />}/>} />
-        <Route path="/settings" element={<ProtectedRoute allowedRoles={['user']} element={<Settings/>}/>} />
+        
         <Route path="/security" element={<Security />} />
    
        
         
         {/* App */}
-        <Route path="/createTrip" element={<CreateTripPage />} />
+        <Route path="/createTrip" element={<CreateTrippage/>} />
        
         <Route path="/packing" element={<Packing />} />
         <Route path="/tripHistory" element={<TripHistory />} />
